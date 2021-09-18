@@ -12,11 +12,31 @@ def to_bin(data):
     else:
         raise TypeError("Type is not supported.")
 
+def combineColorPlanes(blue, green, red):
+    newimg = np.append([blue], [green], axis=0)
+    newimg = np.append(newimg, [red], axis=0)
+    newimg = np.moveaxis(newimg, 0, -1)
+    return newimg
 
 if __name__ == '__main__':
-    image = cv2.imread("./cover_assets/8x8blackwhite.png")
-    print(image.shape)
-    for i in image[0]:
-        print(to_bin(i))
-    for i in image[1]:
-        print(to_bin(i))
+    img = cv2.imread("./cover_assets/doge.jpg")
+    print(img.shape)
+    copyimg = img.copy()
+    count = 0
+    # copyimg[:, :, :] = 0        # opencv uses B G R format
+    # extract out all blue, green and red colors individually
+    onlyblue = copyimg[:, :, 0]
+    onlygreen = copyimg[:, :, 1]
+    onlyred = copyimg[:, :, 2]
+    newimg = combineColorPlanes(onlyblue, onlygreen, onlyred)
+    print(newimg.shape)
+
+    # for i in copyimg:
+    #     for n in i:
+    #         print(to_bin(n))
+    #         count += 1
+
+    print('Converted ' + str(count) + ' pixels')
+
+    cv2.imshow('test', newimg)
+    cv2.waitKey(0)
