@@ -28,7 +28,17 @@ if __name__ == '__main__':
     onlyblue = copyimg[:, :, 0]
     onlygreen = copyimg[:, :, 1]
     onlyred = copyimg[:, :, 2]
+    # Combine back the planes
     newimg = combineColorPlanes(onlyblue, onlygreen, onlyred)
+
+    # uncomment for each of the below functionalities
+    # Take out all blue
+    # newimg[:, :, 0] = 0
+    # # Take out all green
+    # newimg[:, :, 1] = 0
+    # # Take out all red
+    # newimg[:, :, 2] = 0
+
     print(newimg.shape)
 
     # for i in copyimg:
