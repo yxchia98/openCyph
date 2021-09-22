@@ -5,6 +5,7 @@ import sys
 import numpy as np
 import wave
 import re
+import subprocess
 
 class AudioCoder:
     def __init__(self):
@@ -28,7 +29,16 @@ class AudioCoder:
     def encode_audio(self, source, dest, payload, bitrange):
         # error checking, and checking if file exists
         if source[-4:] != '.wav':
-            source += '.wav'
+            # convert mp3 to wav
+            if source[-4:] == '.mp3':
+                source_mp3 = source
+                source = source[:-4]
+                source += '.wav'
+                subprocess.call(['ffmpeg', '-i', source_mp3,
+                                 source])
+            else:
+                print('[!] Only .wav and .mp3 files are supported.')
+                return
         if dest[-4:] != '.wav':
             dest += '.wav'
         if not os.path.exists(source):
@@ -48,7 +58,6 @@ class AudioCoder:
         # apply payload padding
         # Split the payload into specified bitrange slices
         bin_payload = [bin_payload[index: index + bitrange] for index in range(0, len(bin_payload), bitrange)]
-        print(bin_payload)
 
         # set bitmask clear to specified bitranges
         bitmask = 0
@@ -92,7 +101,6 @@ class AudioCoder:
         for byte in frames:
             decoded_bin += self.to_bin(byte)[-bitrange:]
         decoded_bin = [decoded_bin[index: index + 8] for index in range(0, len(decoded_bin), 8)]
-        print('decoded:', decoded_bin[0])
         for byte in decoded_bin:
             val = int(byte, 2)
             if 31 < val < 128:
@@ -106,8 +114,8 @@ class AudioCoder:
 
 if __name__ == '__main__':
     audio = AudioCoder()
-    source_file = './cover_assets/audio'
-    embedded_file = './stego_assets/audio_embedded'
+    source_file = './cover_assets/audio.wav'
+    embedded_file = './stego_assets/audio_embedded.wav'
     decoded_text = './stego_assets/decoded_audio.txt'
     bitrange = 1
     # payload = str(input('Enter payload to be embedded: '))
