@@ -38,6 +38,7 @@ class AudioCoder:
         # apply payload padding
         # Split the payload into specified bitranges
         bin_payload = [bin_payload[index: index + bitrange] for index in range(0, len(bin_payload), bitrange)]
+        print(bin_payload)
 
         # set bitmask clear to specified bitranges
         bitmask = 0
@@ -45,9 +46,10 @@ class AudioCoder:
             bitmask += 1 << i
         bitmask = bitmask.to_bytes(1, byteorder=sys.byteorder)
         bitmask = bitmask[0]
-        print('bitmask: ', bitmask)
 
         for i, bits in enumerate(bin_payload):
+            if len(bits) < bitrange:
+                bits = bits.ljust(bitrange, '0')
             frames[i] = (frames[i] & ~bitmask) | int(bits, 2)
         modded_frames = bytes(frames)
         with wave.open(dest, 'wb') as newfile:
@@ -62,17 +64,10 @@ class AudioCoder:
         frames = bytearray(frames)
         decoded_bin = ''
         decoded_string = ''
-        # counter = 8
-        # for byte in frames:
-        #     counter -= bitrange
-        #     if counter >= 0:
-        #         decoded_bin += self.to_bin(byte)[-bitrange:]
-        #     else:
-        #         decoded_bin += self.to_bin(byte)[-(bitrange - 1):]
-        #         counter = 8
         for byte in frames:
             decoded_bin += self.to_bin(byte)[-bitrange:]
         decoded_bin = [decoded_bin[index: index + 8] for index in range(0, len(decoded_bin), 8)]
+        print('decoded:', decoded_bin[0])
         for byte in decoded_bin:
             val = int(byte, 2)
             if 31 < val < 128:
@@ -87,9 +82,9 @@ if __name__ == '__main__':
     sourcefile = './cover_assets/audio.wav'
     destfile = './stego_assets/audio_embedded.wav'
     # payload = str(input('Enter payload to be embedded: '))
-    payload = 'TESTING3'
-    audio.encode_audio(sourcefile, destfile, payload, 3)
+    payload = 'THIS IS A SECRET TEXT'
+    audio.encode_audio(sourcefile, destfile, payload, 4)
     with open('./stego_assets/decoded_audio.txt', 'w') as newfile:
-        newfile.write(audio.decode_audio(destfile, 3))
+        newfile.write(audio.decode_audio(destfile, 4))
         newfile.close()
 
