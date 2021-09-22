@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 import wave
 import re
@@ -21,32 +23,49 @@ class AudioCoder:
             raise TypeError("Type is not supported.")
 
 
-    def encode_audio(self, source, dest, payload):
+    def encode_audio(self, source, dest, payload, bitrange):
         song = wave.open(source, 'rb')
         print('Channels: ', song.getnchannels(), '\nSample width:', song.getsampwidth(), '\nFramerate: ',
               song.getframerate(), '\nFrames: ', song.getnframes())
+        print(song.getparams())
+        # Get all frames in wav
         frames = song.readframes(song.getnframes())
         frames = list(frames)
         frames = bytearray(frames)
+
+        # Convert payload to binary
         bin_payload = self.to_bin(payload)
-        for i, bit in enumerate(bin_payload):
-            frames[i] = (frames[i] & ~1) | int(bit)
-        moddedFrames = bytes(frames)
+        # Split the payload into specified bitranges
+        bin_payload = [bin_payload[index: index + bitrange] for index in range(0, len(bin_payload), bitrange)]
+        print(bin_payload)
+
+        # set bitmask clear to specified bitranges
+        bitmask = 0
+        for i in range(0, bitrange):
+            bitmask += 1 << i
+        bitmask = bitmask.to_bytes(1, byteorder=sys.byteorder)
+        bitmask = bitmask[0]
+        print('bitmask: ', bitmask)
+
+        for i, bits in enumerate(bin_payload):
+            frames[i] = (frames[i] & ~bitmask) | int(bits)
+        modded_frames = bytes(frames)
         with wave.open(dest, 'wb') as newfile:
             newfile.setparams(song.getparams())
-            newfile.writeframes(moddedFrames)
+            newfile.writeframes(modded_frames)
             newfile.close()
         song.close()
 
-    def decode_audio(self, source):
+    def decode_audio(self, source, bitrange):
         song = wave.open(source, 'rb')
         frames = song.readframes(song.getnframes())
         frames = bytearray(frames)
         decoded_bin = ''
         decoded_string = ''
         for byte in frames:
-            decoded_bin += self.to_bin(byte)[-1]
+            decoded_bin += self.to_bin(byte)[-bitrange:]
         decoded_bin = [decoded_bin[index: index + 8] for index in range(0, len(decoded_bin), 8)]
+        # print(decoded_bin)
         for byte in decoded_bin:
             val = int(byte, 2)
             if 31 < val < 128:
@@ -59,14 +78,12 @@ class AudioCoder:
 if __name__ == '__main__':
 
     audio = AudioCoder()
-    print(audio.decode_audio('./stego_assets/audio_embedded.wav'))
-    # sourcefile = './cover_assets/audio.wav'
-    # destfile = './stego_assets/audio_embedded.wav'
-    # # payload = str(input('Enter payload to be embedded: '))
-    #
-    # payload = 'THIS IS A SECRET TEXT'
-    # encode_audio(sourcefile, destfile, payload)
-    # with open('./stego_assets/decoded_audio.txt', 'w') as newfile:
-    #     newfile.write(decode_audio(destfile))
-    #     newfile.close()
+    sourcefile = './cover_assets/audio.wav'
+    destfile = './stego_assets/audio_embedded.wav'
+    # payload = str(input('Enter payload to be embedded: '))
+    payload = 'THIS IS A SECRET TEXT'
+    audio.encode_audio(sourcefile, destfile, payload, 3)
+    with open('./stego_assets/decoded_audio.txt', 'w') as newfile:
+        newfile.write(audio.decode_audio(destfile, 3))
+        newfile.close()
 
