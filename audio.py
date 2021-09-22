@@ -5,7 +5,7 @@ import sys
 import numpy as np
 import wave
 import re
-import subprocess
+import ffmpeg
 
 class AudioCoder:
     def __init__(self):
@@ -34,8 +34,13 @@ class AudioCoder:
                 source_mp3 = source
                 source = source[:-4]
                 source += '.wav'
-                subprocess.call(['ffmpeg', '-i', source_mp3,
-                                 source])
+                (
+                    ffmpeg
+                        .input(source_mp3)
+                        .output(source)
+                        .overwrite_output()
+                        .run()
+                )
             else:
                 print('[!] Only .wav and .mp3 files are supported.')
                 return
@@ -113,15 +118,18 @@ class AudioCoder:
 
 
 if __name__ == '__main__':
-    audio = AudioCoder()
-    source_file = './cover_assets/audio.wav'
-    embedded_file = './stego_assets/audio_embedded.wav'
-    decoded_text = './stego_assets/decoded_audio.txt'
-    bitrange = 1
-    # payload = str(input('Enter payload to be embedded: '))
-    payload = 'PLEASE GIVE ME A+'
-    audio.encode_audio(source_file, embedded_file, payload, bitrange)
-    audio.decode_audio(embedded_file, decoded_text, bitrange)
-
+    # audio = AudioCoder()
+    # source_file = './cover_assets/audio.wav'
+    # embedded_file = './stego_assets/audio_embedded.wav'
+    # decoded_text = './stego_assets/decoded_audio.txt'
+    # bitrange = 1
+    # # payload = str(input('Enter payload to be embedded: '))
+    # payload = 'PLEASE GIVE ME A+'
+    # audio.encode_audio(source_file, embedded_file, payload, bitrange)
+    # audio.decode_audio(embedded_file, decoded_text, bitrange)
+    # stream = ffmpeg.input('./stego_assets/test.wav')
+    # stream = ffmpeg.output(stream, './stego_assets/test.mp3')
+    # ffmpeg.run(stream)
+    print('Hello World!')
 
 
