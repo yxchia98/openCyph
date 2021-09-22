@@ -35,9 +35,9 @@ class AudioCoder:
 
         # Convert payload to binary
         bin_payload = self.to_bin(payload)
+        # apply payload padding
         # Split the payload into specified bitranges
         bin_payload = [bin_payload[index: index + bitrange] for index in range(0, len(bin_payload), bitrange)]
-        print(bin_payload)
 
         # set bitmask clear to specified bitranges
         bitmask = 0
@@ -48,7 +48,7 @@ class AudioCoder:
         print('bitmask: ', bitmask)
 
         for i, bits in enumerate(bin_payload):
-            frames[i] = (frames[i] & ~bitmask) | int(bits)
+            frames[i] = (frames[i] & ~bitmask) | int(bits, 2)
         modded_frames = bytes(frames)
         with wave.open(dest, 'wb') as newfile:
             newfile.setparams(song.getparams())
@@ -62,10 +62,17 @@ class AudioCoder:
         frames = bytearray(frames)
         decoded_bin = ''
         decoded_string = ''
+        # counter = 8
+        # for byte in frames:
+        #     counter -= bitrange
+        #     if counter >= 0:
+        #         decoded_bin += self.to_bin(byte)[-bitrange:]
+        #     else:
+        #         decoded_bin += self.to_bin(byte)[-(bitrange - 1):]
+        #         counter = 8
         for byte in frames:
             decoded_bin += self.to_bin(byte)[-bitrange:]
         decoded_bin = [decoded_bin[index: index + 8] for index in range(0, len(decoded_bin), 8)]
-        # print(decoded_bin)
         for byte in decoded_bin:
             val = int(byte, 2)
             if 31 < val < 128:
@@ -76,12 +83,11 @@ class AudioCoder:
 
 
 if __name__ == '__main__':
-
     audio = AudioCoder()
     sourcefile = './cover_assets/audio.wav'
     destfile = './stego_assets/audio_embedded.wav'
     # payload = str(input('Enter payload to be embedded: '))
-    payload = 'THIS IS A SECRET TEXT'
+    payload = 'TESTING3'
     audio.encode_audio(sourcefile, destfile, payload, 3)
     with open('./stego_assets/decoded_audio.txt', 'w') as newfile:
         newfile.write(audio.decode_audio(destfile, 3))
