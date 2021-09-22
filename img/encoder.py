@@ -1,5 +1,6 @@
 from PIL import Image
 
+
 class Encoder:
     def __init__(self, url):
         self.originalArr = []
@@ -11,7 +12,7 @@ class Encoder:
         self.bitNumber = 1
         pixel = image.load()
 
-        #convert image to bits
+        # convert image to bits
         intValue = list(image.getdata())
         for i in range(len(intValue)):
             red = bin(intValue[i][0])
@@ -19,8 +20,8 @@ class Encoder:
             blue = bin(intValue[i][2])
             self.originalArr.append([red, green, blue])
 
-        #save to file for debug
-        file = open('../results/img/data.txt', 'w')
+        # save to file for debug
+        file = open('./results/img/data.txt', 'w')
 
         for elements in self.originalArr:
             for data in elements:
@@ -31,8 +32,8 @@ class Encoder:
 
     def setPayload(self, payload):
         #import payload
-        #calls self.checkPayload()
-        #returns binary string array
+        # calls self.checkPayload()
+        # returns binary string array
         binary = bin(payload)
         check = self.checkPayload(len(binary))
 
@@ -42,24 +43,24 @@ class Encoder:
             sys.exit("Payload is larger than file")
 
     def checkPayload(self, payloadLength):
-        #returns True or False
+        # returns True or False
         bitNumber = self.bitNumber
         size = self.size
-        if(bitNumber == 1 & payloadLength<(size*3)):
+        if(bitNumber == 1 & payloadLength < (size*3)):
             return True
-        elif(bitNumber == 2 & payloadLength<(size*6)):
+        elif(bitNumber == 2 & payloadLength < (size*6)):
             return True
-        elif(bitNumber == 3 & payloadLength<(size*9)):
+        elif(bitNumber == 3 & payloadLength < (size*9)):
             return True
-        elif(bitNumber == 4 & payloadLength<(size*12)):
+        elif(bitNumber == 4 & payloadLength < (size*12)):
             return True
-        elif(bitNumber == 5 & payloadLength<(size*15)):
+        elif(bitNumber == 5 & payloadLength < (size*15)):
             return True
-        elif(bitNumber == 6 & payloadLength<(size*18)):
+        elif(bitNumber == 6 & payloadLength < (size*18)):
             return True
-        elif(bitNumber == 7 & payloadLength<(size*21)):
+        elif(bitNumber == 7 & payloadLength < (size*21)):
             return True
-        elif(bitNumber == 8 & payloadLength<(size*24)):
+        elif(bitNumber == 8 & payloadLength < (size*24)):
             return True
         else:
             return False
@@ -76,11 +77,11 @@ class Encoder:
         pixArr = self.originalArr
 
         while(i < len(payload)):
-            #modify red bit
+            # modify red bit
             if(color == 0):
                 temp = pixArr[counter][0][:-bitNumber]
                 for j in range(bitNumber):
-                    if((i+j)<len(payload)):
+                    if((i+j) < len(payload)):
                         temp += payload[i+j]
                     else:
                         temp += "0"
@@ -88,11 +89,11 @@ class Encoder:
                 i += bitNumber
                 color += 1
 
-            #modify green bit
+            # modify green bit
             elif(color == 1):
                 temp = pixArr[counter][1][:-bitNumber]
                 for j in range(bitNumber):
-                    if((i+j)<len(payload)):
+                    if((i+j) < len(payload)):
                         temp += payload[i+j]
                     else:
                         temp += "0"
@@ -100,11 +101,11 @@ class Encoder:
                 i += bitNumber
                 color += 1
 
-            #modify blue bit
+            # modify blue bit
             elif(color == 2):
                 temp = pixArr[counter][2][:-bitNumber]
                 for j in range(bitNumber):
-                    if((i+j)<len(payload)):
+                    if((i+j) < len(payload)):
                         temp += payload[i+j]
                     else:
                         temp += "0"
@@ -113,9 +114,8 @@ class Encoder:
                 color = 0
                 counter += 1
 
-            #return pixArr
+            # return pixArr
             self.resultArr = pixArr
-
 
     def generateNewPic(self, saveUrl):
         pixArr = self.resultArr
