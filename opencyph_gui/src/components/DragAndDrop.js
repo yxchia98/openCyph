@@ -29,14 +29,15 @@ const DragAndDrop = (props) => {
     data.fileList = [];
 
     dispatch({ type: "ADD_FILE_TO_LIST", files });
-    e.dataTransfer.clearData();
     dispatch({ type: "SET_DROP_DEPTH", dropDepth: 0 });
     dispatch({ type: "SET_IN_DROP_ZONE", inDropZone: false });
   };
 
   return (
     <div
-      className={data.inDropZone ? "drag-drop-zone inside-drag-area" : "drag-drop-zone"}
+      className={
+        data.inDropZone ? "drag-drop-zone inside-drag-area" : "drag-drop-zone"
+      }
       onDrop={(e) => handleDrop(e)}
       onDragOver={(e) => handleDragOver(e)}
       onDragEnter={(e) => handleDragEnter(e)}

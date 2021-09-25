@@ -1,4 +1,12 @@
-@import url("https://fonts.googleapis.com/css?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
+@import url("https://rsms.me/inter/inter.css");
+html {
+  font-family: "Inter", sans-serif;
+}
+@supports (font-variation-settings: normal) {
+  html {
+    font-family: "Inter var", sans-serif;
+  }
+}
 
 .beforeAfter {
   padding: 20px 50px;
@@ -14,13 +22,34 @@ body {
   background: #f5f5f7;
   padding: 30px;
   font-family: Inter;
+  margin: 0;
+  padding: 10px;
 }
 
 .drag-drop-zone {
   height: inherit;
   z-index: 9;
+  transition: all 0.3s;
+  display: flex;
+  flex-flow: column wrap;
+  align-items: center;
+  justify-content: end;
+  height: 100%;
+  width: 100%;
+  border-radius: 12px;
+  padding-bottom: 10px;
+  padding-top: 10px;
 }
 
 .drag-drop-zone.inside-drag-area {
   opacity: 0.7;
+  background-color: #e8e8e8;
+}
+
+.inside-drag-area {
+  background-color: #e8e8e8;
+}
+
+h1 {
+  margin: 10px 15px;
 }

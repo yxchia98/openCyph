@@ -5,21 +5,22 @@ import ImageContainer from "./components/ImageContainer";
 import DragAndDrop from "./components/DragAndDrop";
 import styled from "styled-components";
 import Button from "./components/Button";
-import { FileUpload } from "tabler-icons-react";
+import { Confetti } from "tabler-icons-react";
 import { useState, useReducer } from "react";
+import PayloadContainer from "./components/PayloadContainer";
+import CoverContainer from "./components/CoverContainer";
+import { FireworkSpinner } from "react-spinners-kit";
 
-const OptionsContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  width: 100%;
-`;
+const ENDPOINT_URL = "http://localhost:9999";
 
 function App() {
   const [optionObject, setOptionsObject] = useState({
-    filetype: "plaintext",
-    numBits: "2",
+    payloadType: "plaintext",
+    coverType: "image",
+    coverNumBits: "2",
   });
+
+  const [isUploading, setIsUploading] = useState(false);
 
   const reducer = (state, action) => {
     switch (action.type) {
@@ -33,71 +34,78 @@ function App() {
         return state;
     }
   };
-  const [payloadData, payloadDispatch] = React.useReducer(reducer, { dropDepth: 0, inDropZone: false, fileList: [] });
-  const [coverData, coverDispatch] = React.useReducer(reducer, { dropDepth: 0, inDropZone: false, fileList: [] });
+  const [payloadData, payloadDispatch] = useReducer(reducer, {
+    dropDepth: 0,
+    inDropZone: false,
+    fileList: [],
+  });
+  const [coverData, coverDispatch] = useReducer(reducer, {
+    dropDepth: 0,
+    inDropZone: false,
+    fileList: [],
+  });
 
   function handleSubmit() {
-    fetch("http://localhost:9999/", {
-      method: "post",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(optionObject),
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("file", payloadData.fileList[0]);
+
+    fetch(`${ENDPOINT_URL}/uploadFile`, {
+      method: "POST",
+      body: formData,
     })
       .then((response) => response.json())
-      .then((json) => console.log(json));
+      .then((response) => {
+        console.log("Success:", response);
+        setIsUploading(false);
+      })
+      .catch((error) => {
+        console.error("Error yo:", error);
+        setIsUploading(false);
+      });
   }
 
   return (
-    <div className='App'>
+    <div className="App">
       <h1>Steganography</h1>
-      <OptionsContainer>
-        <ButtonChooser
-          buttons={["plaintext", "mp3", "mp4", "mylife"]}
-          whenClick={(e) => setOptionsObject({ ...optionObject, filetype: e.target.name })}
-          title='File Type'
-          defaultIndex='0'
-        />
-        <ButtonChooser
-          buttons={["8", "7", "6", "5", "4", "3", "2", "1"]}
-          whenClick={(e) => setOptionsObject({ ...optionObject, numBits: e.target.name })}
-          title='Number of Bits'
-          defaultIndex='6'
-        />
-      </OptionsContainer>
-      <div className='beforeAfter'>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <DragAndDrop data={payloadData} dispatch={payloadDispatch}>
-            <Button>
-              <FileUpload style={{ marginRight: "10px" }}></FileUpload>
-              Upload Payload
-            </Button>
-            <ImageContainer url='https://www.google.com/logos/doodles/2021/autumn-2021-northern-hemisphere-6753651837109082-law.gif'></ImageContainer>
-          </DragAndDrop>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <DragAndDrop data={coverData} dispatch={coverDispatch}>
-            <Button>
-              <FileUpload style={{ marginRight: "10px" }}></FileUpload>
-              Upload Cover Object
-            </Button>
-            <ImageContainer url='https://www.google.com/logos/doodles/2021/autumn-2021-northern-hemisphere-6753651837109082-law.gif'></ImageContainer>
-          </DragAndDrop>
-        </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "center",
+          flexFlow: "wrap",
+        }}
+      >
+        <PayloadContainer
+          setOptionsObject={setOptionsObject}
+          optionObject={optionObject}
+          payloadData={payloadData}
+          payloadDispatch={payloadDispatch}
+        ></PayloadContainer>
+        <CoverContainer
+          setOptionsObject={setOptionsObject}
+          optionObject={optionObject}
+          coverData={coverData}
+          coverDispatch={coverDispatch}
+        ></CoverContainer>
       </div>
-      {JSON.stringify(optionObject)}
-      <ul className='dropped-files'>
-        {payloadData.fileList.map((f) => {
-          return <li key={f.name}>Payload Data File: {f.name}</li>;
-        })}
-      </ul>
-      <ul className='dropped-files'>
-        {coverData.fileList.map((f) => {
-          return <li key={f.name}>Cover Object File: {f.name}</li>;
-        })}
-      </ul>
-      <Button handleClick={handleSubmit}>Encode</Button>
+
+      <div style={{ margin: "20px 40px" }}>
+        {JSON.stringify(optionObject)}
+        <Button handleClick={handleSubmit} float>
+          {isUploading ? (
+            <FireworkSpinner
+              loading={isUploading}
+              size={20}
+              color="#000"
+              style={{ marginRight: "8px" }}
+            />
+          ) : (
+            <Confetti></Confetti>
+          )}
+          <span style={{ marginLeft: "8px" }}>Encode</span>
+        </Button>
+      </div>
     </div>
   );
 }

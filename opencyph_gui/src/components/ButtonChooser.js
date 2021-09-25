@@ -5,6 +5,7 @@ import styled from "styled-components";
 const ButtonGroupContainer = styled.div`
   display: flex;
   flex-flow: wrap;
+  margin-bottom: 10px;
 `;
 
 const InputButton = styled.button`
@@ -13,10 +14,10 @@ const InputButton = styled.button`
   border: 0px;
   box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.08);
   transition: all 0.3s;
-  margin: 10px 8px;
+  margin: 8px 10px 8px 0px;
   cursor: pointer;
-  font-size: 22px;
-  padding: 12px 20px;
+  font-size: 16px;
+  padding: 8px 14px;
   color: #000;
 
   ${(props) =>
@@ -32,6 +33,13 @@ const InputButton = styled.button`
   }
 `;
 
+const Title = styled.span`
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: #7b7b7b;
+`;
+
 const ButtonChooser = (props) => {
   const [selectedID, setSelectedID] = useState(+props.defaultIndex);
   const handleClick = (event, id) => {
@@ -40,7 +48,7 @@ const ButtonChooser = (props) => {
   };
   return (
     <div>
-      {props.title}
+      <Title>{props.title}</Title>
       <ButtonGroupContainer>
         {props.buttons.map((buttonLabel, i) => (
           <InputButton

@@ -10,7 +10,8 @@ const ImageDiv = styled.div`
   border-radius: 15px;
   box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.08);
   transition: all 0.3s;
-
+  height: auto;
+  width: 90%;
   :hover {
     box-shadow: 2px 4px 16px rgba(0, 0, 0, 0.16);
     transform: scale(1.01, 1.01);
@@ -20,7 +21,10 @@ const ImageDiv = styled.div`
 const ImageContainer = (props) => {
   return (
     <ImageDiv>
-      <img src={props.url}></img>
+      <img
+        src={props.url}
+        style={{ maxWidth: "100%", height: "auto", objectFit: "cover" }}
+      ></img>
     </ImageDiv>
   );
 };
