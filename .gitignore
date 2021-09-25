@@ -169,3 +169,5 @@ logs
 node_modules
 bower_components
 __pycache__
+
+.vscode
