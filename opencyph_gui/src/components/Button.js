@@ -4,6 +4,7 @@ import styled from "styled-components";
 const StyledButton = styled.button`
   background: #fff;
   border-radius: 10em;
+  width: 100%;
   height: 55px;
   border: 0px;
   box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.08);
@@ -24,10 +25,7 @@ const StyledButton = styled.button`
 
 const Button = (props) => {
   return (
-    <StyledButton
-      name={props.buttonLabel}
-      onClick={(event) => props.handleClick(event, props.i)}
-    >
+    <StyledButton name={props.buttonLabel} onClick={(event) => props.handleClick(event, props.i)}>
       {props.children}
     </StyledButton>
   );
