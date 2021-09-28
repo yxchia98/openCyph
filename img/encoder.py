@@ -1,7 +1,7 @@
 from PIL import Image
 
 class Encoder:
-    def __init__(self, url):
+    def __init__(self, url, filetype):
         self.originalArr = []
         self.resultArr = []
         image = Image.open(url)
@@ -9,6 +9,9 @@ class Encoder:
         self.height = image.height
         self.size = self.width * self.height
         self.bitNumber = 1
+
+        self.header = filetype
+        self.tail = "0011101010001001010010011100101101101001100000010001010011101011011100111000011000000010100111001011110100001000000001010111000001011100010111010110101111011001101101001111100110111110100101001100111110101110010111101111100100010111011101111100010110001101"
         pixel = image.load()
 
         #convert image to bits
@@ -29,12 +32,18 @@ class Encoder:
 
         file.close()
 
+    def wrapPayload(self, payload):
+        #add header
+
+        #add tail
+        pass
+
     def setPayload(self, payload):
-        #import payload
+        #add header and tail
+        fullPayload = self.wrapPayload(payload)
         #calls self.checkPayload()
+        check = self.checkPayload(len(fullPayload))
         #returns binary string array
-        binary = bin(payload)
-        check = self.checkPayload(len(binary))
 
         if(check == True):
             return binary
