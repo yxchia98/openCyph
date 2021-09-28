@@ -188,17 +188,10 @@ if __name__ == '__main__':
     bitrange = 1
     # payload = str(input('Enter payload to be embedded: '))
     payload = 'NOT SO SECRET'
-    # audio.encode_audio(source_file, embedded_file, payload, bitrange)
-    # audio.decode_audio(embedded_file, decoded_text, bitrange)
+    audio.encode_audio(source_file, embedded_file, payload, bitrange)
+    audio.decode_audio(embedded_file, decoded_text, bitrange)
 
-    audio.get_stream(source_file)
-
-    # audio.convert_audio('./stego_assets/audio_embedded.wav', './stego_assets/test.mp3')
-    # audio.convert_audio('./stego_assets/test.mp3', './stego_assets/test.wav')
-    # audio.decode_audio('./stego_assets/test.wav', './stego_assets/test_1.txt', bitrange)
-    # audio.convert_audio('./stego_assets/test.wav', './stego_assets/test.mp3')
-    # audio.convert_audio('./stego_assets/test.mp3', './stego_assets/test.wav')
-    # audio.decode_audio('./stego_assets/test.wav', './stego_assets/test_2.txt', bitrange)
+    # audio.get_stream(source_file)
 
 
 
