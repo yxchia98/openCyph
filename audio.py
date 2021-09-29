@@ -34,6 +34,7 @@ class AudioCoder:
         #     .overwrite_output()
         #     .run()
         # )
+        print('[*] Converting', source[-3:], 'to', dest[-3:], '...')
         if source[-4:] == '.mp3':
             AudioSegment.from_mp3(source).export(dest, format=dest[-3:])
             return
@@ -42,34 +43,16 @@ class AudioCoder:
             # AudioSegment.from_wav(source).export(dest, format=dest[-3:])
         return
 
-    def get_stream(self, source):
-        file = open(source, 'rb')
-        byte = file.read(1)
-        # get stream as 8-bit array
-        # bitarray = []
-        # while byte:
-        #     bitarray.append(bin(byte[0]))
-        #     byte = file.read(1)
-        # print(bitarray)
+    def limit_check(self, payload, cover, bitrange):
+        payload_length = len(payload)
+        cover_length = len(cover)
+        if(payload_length > (cover_length * bitrange)):
+            return 1
+        return 0
 
-        # get stream as 8-bit string
-        bitstring = ''
-        while byte:
-            bitstring += format(byte[0], "08b")
-            byte = file.read(1)
-        # print(bitstring)
-
-        # get stream as bytearray
-        # bitarray = bytearray()
-        # while byte:
-        #     bitarray.append(byte[0])
-        #     byte = file.read(1)
-        #
-        # file.close()
-        # print(bitarray)
-        return bitstring
 
     def generate_wav(self, data, dest):
+        print('[*] Writing new data to file...')
         file = open(dest, "wb")
         file.write(data)
         file.close
@@ -77,6 +60,7 @@ class AudioCoder:
 
     def encode_audio(self, source, dest, payload, bitrange):
         # error checking, and checking if file exists
+        print('[*] Cover image URI is:', source, 'using', bitrange, 'bits.')
         if source[-4:] != '.wav':
             # convert mp3 to wav
             if source[-4:] == '.mp3':
@@ -93,19 +77,22 @@ class AudioCoder:
         if not os.path.exists(source):
             print('[!] Source file does not exist, only .wav files are accepted for encoding')
             return
+        print('[*] Encoding...')
         song = wave.open(source, 'rb')
         print('Channels: ', song.getnchannels(), '\nSample width:', song.getsampwidth(), '\nFramerate: ',
               song.getframerate(), '\nFrames: ', song.getnframes())
-        print(song.getparams())
+        # print(song.getparams())
         # Get all frames in wav
         frames = song.readframes(song.getnframes())
         frames = list(frames)
         frames = bytearray(frames)
+        print('length of frames:', len(frames))
 
         # Append delimiter 5= to payload
         payload += "5="
         # Convert payload to binary
         bin_payload = self.to_bin(payload)
+        print('binary length of payload:', len(bin_payload))
         # apply payload padding
         # Split the payload into specified bitrange slices
         bin_payload = [bin_payload[index: index + bitrange] for index in range(0, len(bin_payload), bitrange)]
@@ -132,8 +119,10 @@ class AudioCoder:
             newfile.writeframes(modded_frames)
             newfile.close()
         song.close()
+        print('[*] Successfully encoded and exported to:', dest)
 
     def decode_audio(self, source, dest, bitrange):
+        print('[*] Attempting to decode:', source, 'using', bitrange, 'bits.')
         # error handling
         type = 'wav'
         prev_char = ''
@@ -153,8 +142,8 @@ class AudioCoder:
         if not os.path.exists(source):
             print('[!] Source file', source,'does not exist, only .wav and .mp3 files are accepted for decoding')
             return
-
         # Read frames from specified file
+        print('[*] Decoding...')
         song = wave.open(source, 'rb')
         frames = song.readframes(song.getnframes())
         frames = bytearray(frames)
@@ -176,20 +165,21 @@ class AudioCoder:
         with open(dest, 'w') as newfile:
             newfile.write(decoded_string)
             newfile.close()
+        print('[*] Successfully decoded and exported to', dest)
         return decoded_string
 
 
 
-if __name__ == '__main__':
-    audio = AudioCoder()
-    source_file = './cover_assets/audio.wav'
-    embedded_file = './stego_assets/audio_embedded.wav'
-    decoded_text = './stego_assets/decoded_audio.txt'
-    bitrange = 1
-    # payload = str(input('Enter payload to be embedded: '))
-    payload = 'NOT SO SECRET'
-    audio.encode_audio(source_file, embedded_file, payload, bitrange)
-    audio.decode_audio(embedded_file, decoded_text, bitrange)
+# if __name__ == '__main__':
+#     audio = AudioCoder()
+#     source_file = './cover_assets/audio.wav'
+#     embedded_file = './stego_assets/audio_embedded.wav'
+#     decoded_text = './stego_assets/decoded_audio.txt'
+#     bitrange = 1
+#     # payload = str(input('Enter payload to be embedded: '))
+#     payload = 'NOT SO SECRET'
+#     audio.encode_audio(source_file, embedded_file, payload, bitrange)
+#     audio.decode_audio(embedded_file, decoded_text, bitrange)
 
     # audio.get_stream(source_file)
 
