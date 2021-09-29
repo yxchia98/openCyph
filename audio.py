@@ -4,8 +4,8 @@ import sys
 
 import numpy as np
 import wave
-import ffmpeg
 from pydub import AudioSegment
+import filestream
 
 class AudioCoder:
     def __init__(self):
@@ -77,6 +77,19 @@ class AudioCoder:
         if not os.path.exists(source):
             print('[!] Source file does not exist, only .wav files are accepted for encoding')
             return
+        # check if payload is a file or plaintext
+        if os.path.exists(payload):
+            bin_payload = filestream.get_stream(payload)
+            # Append delimiter 5= to payload
+            bin_payload += self.to_bin('5=')
+        else:
+            print('[*] Payload is not a file, encoding as plaintext')
+            # Append delimiter 5= to payload
+            payload += "5="
+            # Convert payload to binary
+            bin_payload = self.to_bin(payload)
+
+
         print('[*] Encoding...')
         song = wave.open(source, 'rb')
         print('Channels: ', song.getnchannels(), '\nSample width:', song.getsampwidth(), '\nFramerate: ',
@@ -88,10 +101,7 @@ class AudioCoder:
         frames = bytearray(frames)
         print('length of frames:', len(frames))
 
-        # Append delimiter 5= to payload
-        payload += "5="
-        # Convert payload to binary
-        bin_payload = self.to_bin(payload)
+
         print('binary length of payload:', len(bin_payload))
         # apply payload padding
         # Split the payload into specified bitrange slices
@@ -170,16 +180,15 @@ class AudioCoder:
 
 
 
-# if __name__ == '__main__':
-#     audio = AudioCoder()
-#     source_file = './cover_assets/audio.wav'
-#     embedded_file = './stego_assets/audio_embedded.wav'
-#     decoded_text = './stego_assets/decoded_audio.txt'
-#     bitrange = 1
-#     # payload = str(input('Enter payload to be embedded: '))
-#     payload = 'NOT SO SECRET'
-#     audio.encode_audio(source_file, embedded_file, payload, bitrange)
-#     audio.decode_audio(embedded_file, decoded_text, bitrange)
+if __name__ == '__main__':
+    audio = AudioCoder()
+    source_file = './cover_assets/audio.wav'
+    embedded_file = './stego_assets/audio_embedded.wav'
+    decoded_text = './stego_assets/decoded_audio.txt'
+    bitrange = 1
+    payload = 'NOT SO SECRET'
+    audio.encode_audio(source_file, embedded_file, payload, bitrange)
+    audio.decode_audio(embedded_file, decoded_text, bitrange)
 
     # audio.get_stream(source_file)
 
