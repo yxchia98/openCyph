@@ -1,15 +1,11 @@
-from audio import AudioCoder
 from picture import Encoder
+from filestream import get_stream
 
+sneakyBits = get_stream("cover_assets/audio.wav")
 
-audiocoder = AudioCoder()
-# audioBits = audiocoder.get_stream("cover_assets/audio.wav")
-bits = audiocoder.get_stream("cover_assets/doge.jpg")
-print(bits)
+imagecoder = Encoder("./cover_assets/mountain.jpeg", "01")
 
-# imagecoder = Encoder("./cover_assets/mountain.jpeg", "01")
-#
-# imagecoder.setBitNumber(4)
-# imagecoder.encode(audioBits)
-# # imagecoder.writeText()
-# imagecoder.generateNewPic("./results./img./imgResult.png")
+imagecoder.setBitNumber(6)
+imagecoder.encode(sneakyBits)
+# imagecoder.writeText()
+imagecoder.generateNewPic("./results./img./imgResult.png")

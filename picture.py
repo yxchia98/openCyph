@@ -11,10 +11,10 @@ class Encoder:
         self.size = self.width * self.height
         self.bitNumber = 1
 
-        self.filetype = filetype
         self.tail = "0011101010001001010010011100101101101001100000010001010011101011011100111000011000000010100111001011110100001000000001010111000001011100010111010110101111011001101101001111100110111110100101001100111110101110010111101111100100010111011101111100010110001101"
         pixel = image.load()
 
+        print("Initialising encoder")
         #convert image to bits
         intValue = list(image.getdata())
         for i in range(len(intValue)):
@@ -36,11 +36,9 @@ class Encoder:
 
     def wrapPayload(self, payload):
         print("Wrapping payload")
-        #add header
-        header = self.filetype
         #add tail
         tail = self.tail
-        fullPayload = header + payload + tail
+        fullPayload =  payload + tail
         return fullPayload
 
     def setPayload(self, payload):
@@ -60,9 +58,6 @@ class Encoder:
         #returns True or False
         bitNumber = self.bitNumber
         size = self.size
-
-        print("size: ", size)
-        print(payloadLength)
 
         if(bitNumber == 1 and (size*3)>payloadLength):
             return True
