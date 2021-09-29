@@ -1,8 +1,5 @@
 import React from "react";
 import "./App.css";
-import ButtonChooser from "./components/ButtonChooser";
-import ImageContainer from "./components/ImageContainer";
-import DragAndDrop from "./components/DragAndDrop";
 import styled from "styled-components";
 import Button from "./components/Button";
 import { Confetti } from "tabler-icons-react";
@@ -92,6 +89,7 @@ function App() {
 
       <div style={{ margin: "20px 40px" }}>
         {JSON.stringify(optionObject)}
+
         <Button handleClick={handleSubmit} float>
           {isUploading ? (
             <FireworkSpinner
