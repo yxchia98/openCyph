@@ -33,6 +33,14 @@ const DragAndDrop = (props) => {
     dispatch({ type: "SET_IN_DROP_ZONE", inDropZone: false });
   };
 
+  const handleAddImage = (e) => {
+    e.preventDefault();
+    let files = e.target.files[0];
+    data.fileList = [];
+
+    dispatch({ type: "ADD_FILE_TO_LIST", files });
+  };
+
   return (
     <div
       className={
@@ -44,6 +52,7 @@ const DragAndDrop = (props) => {
       onDragLeave={(e) => handleDragLeave(e)}
     >
       {props.children}
+      <input type="file" onChange={(e) => handleAddImage(e)}></input>
     </div>
   );
 };

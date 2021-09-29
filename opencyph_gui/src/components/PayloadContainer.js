@@ -105,9 +105,12 @@ const PayloadContainer = (props) => {
             dispatch={props.payloadDispatch}
           >
             {props.payloadData.fileList[0] ? (
-              <SelectedFile>
-                {props.payloadData.fileList.map((f) => f.name)}
-              </SelectedFile>
+              <>
+                <img src={props.imgData} height="300px" width="300px"></img>
+                <SelectedFile>
+                  {props.payloadData.fileList.map((f) => f.name)}
+                </SelectedFile>
+              </>
             ) : (
               <FileUploadBox>
                 <FileUpload

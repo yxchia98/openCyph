@@ -74,13 +74,18 @@ const CoverContainer = (props) => {
           flexDirection: "column",
           width: "100%",
           height: "100%",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         <DragAndDrop data={props.coverData} dispatch={props.coverDispatch}>
           {props.coverData.fileList[0] ? (
-            <SelectedFile>
-              {props.coverData.fileList.map((f) => f.name)}
-            </SelectedFile>
+            <>
+              <img src={props.imgData} height="300px" width="300px"></img>
+              <SelectedFile>
+                {props.coverData.fileList.map((f) => f.name)}
+              </SelectedFile>
+            </>
           ) : (
             <FileUploadBox>
               <FileUpload
