@@ -1,5 +1,4 @@
 from pydub import AudioSegment
-from audio import AudioCoder
 
 
 # FILE FORMATS (first 4 bits only)
@@ -120,10 +119,9 @@ def generate_from_stream(data, dest):
     return
 
 if __name__ == '__main__':
-    imgstream = get_stream('./cover_assets/iloverocks.jpg')
-    wavstream = get_stream('./cover_assets/audio.wav')
-    generate_from_stream(imgstream, './cover_assets/ihaterocks.jpg')
-    generate_from_stream(wavstream, './cover_assets/ilovethisaudio.jpg') # testing for wrong extension
-
-    # text = 'hello.mp3'
-    # print(format_identifier(text[-5:]))
+    # imgstream = get_stream('./cover_assets/iloverocks.jpg')
+    # wavstream = get_stream('./cover_assets/audio.wav')
+    # generate_from_stream(imgstream, './cover_assets/ihaterocks.jpg')
+    # generate_from_stream(wavstream, './cover_assets/ilovethisaudio.jpg') # testing for wrong extension
+    txtstream = get_stream('./payload_assets/test.txt')
+    generate_from_stream(txtstream, './results/testgen.txt')
