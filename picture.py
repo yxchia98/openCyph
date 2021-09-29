@@ -1,8 +1,9 @@
 from PIL import Image
 import sys
 
+
 class Encoder:
-    def __init__(self, imageUrl, filetype):
+    def __init__(self, imageUrl):
         self.originalArr = []
         self.resultArr = []
         image = Image.open(imageUrl)
@@ -15,7 +16,7 @@ class Encoder:
         pixel = image.load()
 
         print("Initialising encoder")
-        #convert image to bits
+        # convert image to bits
         intValue = list(image.getdata())
         for i in range(len(intValue)):
             red = format(intValue[i][0], "08b")
@@ -23,7 +24,7 @@ class Encoder:
             blue = format(intValue[i][2], "08b")
             self.originalArr.append([red, green, blue])
 
-        #save to file for debug
+        # save to file for debug
         # print("Saving to data text")
         # file = open('./results/img/data.txt', 'w')
         #
@@ -36,17 +37,17 @@ class Encoder:
 
     def wrapPayload(self, payload):
         print("Wrapping payload")
-        #add tail
+        # add tail
         tail = self.tail
-        fullPayload =  payload + tail
+        fullPayload = payload + tail
         return fullPayload
 
     def setPayload(self, payload):
-        #add header and tail
+        # add header and tail
         fullPayload = self.wrapPayload(payload)
-        #calls self.checkPayload()
+        # calls self.checkPayload()
         check = self.checkPayload(len(fullPayload))
-        #returns binary string array
+        # returns binary string array
 
         if(check == True):
             print("Payload size check: PASSED")
@@ -55,25 +56,25 @@ class Encoder:
             sys.exit("Payload is larger than file")
 
     def checkPayload(self, payloadLength):
-        #returns True or False
+        # returns True or False
         bitNumber = self.bitNumber
         size = self.size
 
-        if(bitNumber == 1 and (size*3)>payloadLength):
+        if(bitNumber == 1 and (size*3) > payloadLength):
             return True
-        elif(bitNumber == 2 and payloadLength<(size*6)):
+        elif(bitNumber == 2 and payloadLength < (size*6)):
             return True
-        elif(bitNumber == 3 and payloadLength<(size*9)):
+        elif(bitNumber == 3 and payloadLength < (size*9)):
             return True
-        elif(bitNumber == 4 and payloadLength<(size*12)):
+        elif(bitNumber == 4 and payloadLength < (size*12)):
             return True
-        elif(bitNumber == 5 and payloadLength<(size*15)):
+        elif(bitNumber == 5 and payloadLength < (size*15)):
             return True
-        elif(bitNumber == 6 and payloadLength<(size*18)):
+        elif(bitNumber == 6 and payloadLength < (size*18)):
             return True
-        elif(bitNumber == 7 and payloadLength<(size*21)):
+        elif(bitNumber == 7 and payloadLength < (size*21)):
             return True
-        elif(bitNumber == 8 and payloadLength<(size*24)):
+        elif(bitNumber == 8 and payloadLength < (size*24)):
             return True
         else:
             return False
@@ -91,11 +92,11 @@ class Encoder:
         print("Encoding...")
 
         while(i < len(payload)):
-            #modify red bit
+            # modify red bit
             if(color == 0):
                 temp = pixArr[counter][0][:-bitNumber]
                 for j in range(bitNumber):
-                    if((i+j)<len(payload)):
+                    if((i+j) < len(payload)):
                         temp += payload[i+j]
                     else:
                         temp += "0"
@@ -103,11 +104,11 @@ class Encoder:
                 i += bitNumber
                 color += 1
 
-            #modify green bit
+            # modify green bit
             elif(color == 1):
                 temp = pixArr[counter][1][:-bitNumber]
                 for j in range(bitNumber):
-                    if((i+j)<len(payload)):
+                    if((i+j) < len(payload)):
                         temp += payload[i+j]
                     else:
                         temp += "0"
@@ -115,11 +116,11 @@ class Encoder:
                 i += bitNumber
                 color += 1
 
-            #modify blue bit
+            # modify blue bit
             elif(color == 2):
                 temp = pixArr[counter][2][:-bitNumber]
                 for j in range(bitNumber):
-                    if((i+j)<len(payload)):
+                    if((i+j) < len(payload)):
                         temp += payload[i+j]
                     else:
                         temp += "0"
@@ -128,11 +129,9 @@ class Encoder:
                 color = 0
                 counter += 1
 
-        #return pixArr
+        # return pixArr
         self.resultArr = pixArr
         print("Encoding Successful")
-
-
 
     def generateNewPic(self, saveUrl):
         print("Saving to new image")
@@ -147,7 +146,6 @@ class Encoder:
         result = Image.new('RGB', (self.width, self.height))
         result.putdata(temp)
         result.save(saveUrl)
-
 
     def writeText(self):
         file = open('./results/img/data2.txt', 'w')
