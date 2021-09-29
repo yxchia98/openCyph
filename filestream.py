@@ -40,7 +40,6 @@ def format_identifier(data):
     if data == '1010':
         return '.txt'
 
-
     # conversions for extension strings
     if data[0] != '.':  # check if it is a 4char or 3char extension
         data = data[1:]
@@ -69,18 +68,17 @@ def format_identifier(data):
 
     return
 
+
 def get_stream(source):
     # get stream as 8-bit string
     identifier = format_identifier(source[-5:])
     bitstring = identifier
     file = open(source, 'rb')
     byte = file.read(1)
-
     print('[*] Extracting bits from bytestream...')
     while byte:
         bitstring += format(byte[0], "08b")
         byte = file.read(1)
-
     # get stream as 8-bit array
     # bitarray = []
     # while byte:
@@ -99,19 +97,26 @@ def get_stream(source):
     return bitstring
 
     # function to generate a file from file stream
+
+
 def generate_from_stream(data, dest):
     # error checking and file URI matching / correction
     identifier = data[:4]     # get encoded format identifier
     extension = format_identifier(identifier)
     if extension != dest[-(len(extension)):]:
-        print('[!] destination file format and decoded format mismatch, correcting extension...')
+        print(
+            '[!] destination file format and decoded format mismatch, correcting extension...')
         dest += extension   # apply error correction
 
-    datastream = data[4:]           # slice out format identifier to get actual file stream
+    # slice out format identifier to get actual file stream
+    datastream = data[4:]
     # split data into byte-sized bites
-    datastream = [datastream[index: index + 8] for index in range(0, len(datastream), 8)]
-    datastream = [int(index, 2) for index in datastream]        # convert bitstring into int array
-    datastream = bytearray(datastream)      # convert int array into bytearary, to be used as writable file stream
+    datastream = [datastream[index: index + 8]
+                  for index in range(0, len(datastream), 8)]
+    # convert bitstring into int array
+    datastream = [int(index, 2) for index in datastream]
+    # convert int array into bytearary, to be used as writable file stream
+    datastream = bytearray(datastream)
 
     # write to file destination
     file = open(dest, "wb")
@@ -119,11 +124,13 @@ def generate_from_stream(data, dest):
     file.close
     return
 
+
 if __name__ == '__main__':
     imgstream = get_stream('./cover_assets/iloverocks.jpg')
     wavstream = get_stream('./cover_assets/audio.wav')
     generate_from_stream(imgstream, './cover_assets/ihaterocks.jpg')
-    generate_from_stream(wavstream, './cover_assets/ilovethisaudio.jpg') # testing for wrong extension
+    # testing for wrong extension
+    generate_from_stream(wavstream, './cover_assets/ilovethisaudio.jpg')
 
     # text = 'hello.mp3'
     # print(format_identifier(text[-5:]))
