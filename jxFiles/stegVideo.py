@@ -3,7 +3,6 @@ import os
 import shutil
 from subprocess import call, STDOUT
 import sys
-import future
 
 def convertToBin(data):
     """Convert 'data' to binary format as string"""
@@ -58,7 +57,7 @@ def encode(videoName, secretData):
         framePath = (os.path.join("./temp", "frame{:d}.png".format(frame)))
         image = cv2.imread(framePath)  # read the image
         totalBytes += image.shape[0] * image.shape[1] * 3 // 8  # maximum bytes to encode
-        print("[*] Maximum bytes to encode:", totalBytes)
+        print("[*] Bytes available for encoding:", totalBytes)
         if len(secretData) > totalBytes:
             raise ValueError("[!] Insufficient bytes, need bigger image or less data.")
 
@@ -70,16 +69,15 @@ def encode(videoName, secretData):
                     if dataIndex < dataLen: # modify the Least Significant bit only if there is still data to store
                         pixel[0] = int(r[:-1] + binarySecretData[dataIndex], 2) # Least significant red pixel bit
                         dataIndex += 1
-                        print("Changes Made to Frame " + str(frame))
                     if dataIndex < dataLen:
                         pixel[1] = int(g[:-1] + binarySecretData[dataIndex], 2)  # Least significant green pixel bit
                         dataIndex += 1
                     if dataIndex < dataLen:
                         pixel[2] = int(b[:-1] + binarySecretData[dataIndex], 2)  # Least significant blue pixel bit
                         dataIndex += 1
+                    print("Data encoded in Frame " + str(frame))
                     if dataIndex >= dataLen: # if data is encoded, just break out of the Loop
                         break
-                    #print("Changes Made to Frame " + str(frame))
                     break
                 break
         cv2.imwrite(os.path.join("./temp", "encFrame{:d}.png".format(frame)), image)
@@ -87,7 +85,7 @@ def encode(videoName, secretData):
 
     call(["ffmpeg", "-i", "temp/encFrame%d.png", "-vcodec", "png", "temp/noAudioStegoVid.mp4", "-y"], stdout=open(os.devnull, "w"), stderr=STDOUT)
     call(["ffmpeg", "-i", "temp/noAudioStegoVid.mp4", "-i", "temp/audio.mp3", "-codec", "copy", "temp/audioStegoVid.mp4", "-y"], stdout=open(os.devnull, "w"), stderr=STDOUT)
-    call(["ffmpeg", "-i", "temp/noAudioStegoVid.mp4", "-f", "avi", "-c:v", "huffyuv", "stegoVideo.avi"], stdout=open(os.devnull, "w"), stderr=STDOUT)
+    call(["ffmpeg", "-i", "temp/audioStegoVid.mp4", "-f", "avi", "-c:v", "huffyuv", "stegoVideo.avi"], stdout=open(os.devnull, "w"), stderr=STDOUT)
     clean("temp")
 
 def decode(videoName):
@@ -98,22 +96,16 @@ def decode(videoName):
 
     binaryData = ""
     for frame in range(0, frameCount, 1):
-        print(frame)
         framePath = (os.path.join("./temp", "frame{:d}.png".format(frame)))
         image = cv2.imread(framePath)  # read the image
 
         print("[+] Decoding...")
         for row in image:
             for pixel in row:
-                print(pixel)
                 r, g, b = convertToBin(pixel)
-                print(r, g, b)
                 binaryData += r[-1]
                 binaryData += g[-1]
                 binaryData += b[-1]
-                print(r, g, b)
-                print(frame)
-                print(binaryData)
                 break
             break
         continue
@@ -126,7 +118,7 @@ def decode(videoName):
         decodedData += chr(int(byte, 2))
         if decodedData[-5:] == "=====":
             break
-    #clean("temp")
+    clean("temp")
     return decodedData[:-5]
 
 #Main Program
@@ -148,27 +140,13 @@ while True:
         videoName = input("Enter video name with its format to decode: ")
         print("Video to decode: ", videoName)
 
-        binData = ""
-        binData += "111101111111011111110111111101111111011111110111111101111111011111110111111101110011110100111101001111010011110100111101"
-        allTestBytes = [binData[i: i + 8] for i in range(0, len(binData), 8)]
-
-        testData = ""
-        for byte in allTestBytes:
-            testData += chr(int(byte, 2))
-            if testData[-5:] == "=====":
-                break
-
         #Decode and display hidden text
         decodedText = decode(videoName)
         print("The hidden text in the video was: ", decodedText)
-        print(testData[:-5])
 
     #Restore Video to Playable Format
     elif userInput == "3":
-        videoName = input("Enter video name with its format to restore: ")
-        print("Video to restore: ", videoName)
-
-        call(["ffmpeg", "-i", videoName, "restoredVideo.mp4"], stdout=open(os.devnull, "w"), stderr=STDOUT)
+        print("Function for ltr (Ignore)")
 
     #End Program
     else:
