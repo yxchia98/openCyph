@@ -1,4 +1,5 @@
 import React from "react";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import "./App.css";
 import styled from "styled-components";
 import Button from "./components/Button";
@@ -11,7 +12,49 @@ import HugeContainer from "./components/HugeContainer";
 
 const ENDPOINT_URL = "http://localhost:9999";
 
-function App() {
+export default function App() {
+  return (
+    <Router>
+      <h1>Steganography</h1>
+
+      <div>
+        <nav>
+          <ul>
+            <li>
+              <Link to='/'>Home</Link>
+            </li>
+            <li>
+              <Link to='/encode'>Encode</Link>
+            </li>
+            <li>
+              <Link to='/decode'>Decode</Link>
+            </li>
+          </ul>
+        </nav>
+
+        {/* A <Switch> looks through its children <Route>s and
+            renders the first one that matches the current URL. */}
+        <Switch>
+          <Route path='/encode'>
+            <Encode />
+          </Route>
+          <Route path='/decode'>
+            <Decode />
+          </Route>
+          <Route path='/'>
+            <Home />
+          </Route>
+        </Switch>
+      </div>
+    </Router>
+  );
+}
+
+function Home() {
+  return <h2>Home</h2>;
+}
+
+function Encode() {
   const [optionObject, setOptionsObject] = useState({
     payloadType: "plaintext",
     coverType: "image",
@@ -78,10 +121,7 @@ function App() {
     const formData = new FormData();
     formData.append("payloadFile", payloadData.fileList[0]);
     formData.append("coverFile", coverData.fileList[0]);
-    formData.append(
-      "optionObject",
-      JSON.stringify({ ...optionObject, id: Math.floor(Math.random() * 10000) })
-    );
+    formData.append("optionObject", JSON.stringify({ ...optionObject, id: Math.floor(Math.random() * 10000) }));
 
     fetch(`${ENDPOINT_URL}/uploadFile`, {
       method: "POST",
@@ -104,8 +144,7 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <h1>Steganography</h1>
+    <div className='App'>
       <div
         style={{
           display: "flex",
@@ -153,13 +192,8 @@ function App() {
             flexFlow: "wrap",
           }}
         >
-          <HugeContainer type="Result">
-            <img
-              src={resultsURL}
-              height="300px"
-              width="100%"
-              style={{ objectFit: "contain" }}
-            ></img>
+          <HugeContainer type='Result'>
+            <img src={resultsURL} height='300px' width='100%' style={{ objectFit: "contain" }}></img>
           </HugeContainer>
         </div>
       )}
@@ -168,16 +202,7 @@ function App() {
         {JSON.stringify(optionObject)}
 
         <Button handleClick={handleSubmit} float>
-          {isUploading ? (
-            <FireworkSpinner
-              loading={isUploading}
-              size={20}
-              color="#000"
-              style={{ marginRight: "8px" }}
-            />
-          ) : (
-            <Confetti></Confetti>
-          )}
+          {isUploading ? <FireworkSpinner loading={isUploading} size={20} color='#000' style={{ marginRight: "8px" }} /> : <Confetti></Confetti>}
           <span style={{ marginLeft: "8px" }}>Encode</span>
         </Button>
       </div>
@@ -185,4 +210,6 @@ function App() {
   );
 }
 
-export default App;
+function Decode() {
+  return <h2>Decode</h2>;
+}
