@@ -52,9 +52,10 @@ class Encoder:
         # returns binary string array
 
         if(check == True):
-            print("* Payload size check: PASSED")
+            print("* Payload Size Check: PASSED")
             return fullPayload
         else:
+            raise Exception("! Payload is larger than file !")
             sys.exit("! Payload is larger than file !")
 
     def checkPayload(self, payloadLength):

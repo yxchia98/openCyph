@@ -42,7 +42,7 @@ const DragAndDrop = (props) => {
   };
 
   return (
-    <div
+    <label
       className={
         data.inDropZone ? "drag-drop-zone inside-drag-area" : "drag-drop-zone"
       }
@@ -52,8 +52,21 @@ const DragAndDrop = (props) => {
       onDragLeave={(e) => handleDragLeave(e)}
     >
       {props.children}
-      <input type="file" onChange={(e) => handleAddImage(e)}></input>
-    </div>
+      <div class="file-input" for="file">
+        <input
+          style={{
+            opacity: "0",
+            width: "0.1px",
+            height: "0.1px",
+            position: "absolute",
+          }}
+          type="file"
+          id="file"
+          onChange={(e) => handleAddImage(e)}
+        ></input>
+        <label>Select file</label>
+      </div>
+    </label>
   );
 };
 export default DragAndDrop;

@@ -5,11 +5,12 @@ from audio import AudioCoder
 # Choose one file
 # sneakyBits = get_stream("payload_assets/bloop.mp4")
 # sneakyBits = get_stream("payload_assets/pinout.png")
-sneakyBits = get_stream("payload_assets/printer.pdf")
+# sneakyBits = get_stream("payload_assets/printer.pdf")
+sneakyBits = get_stream("payload_assets/hass-lajv-lights.png")
 # sneakyBits = get_stream("payload_assets/test.txt")
 
 # Any Payload to Image Cover
-imagecoder = Encoder("./cover_assets/mountain.jpeg")
+imagecoder = Encoder("./cover_assets/TB1NAt.UEY1gK0jSZFC0.gwqXXa.jpg")
 imagecoder.setBitNumber(6)
 imagecoder.encode(sneakyBits)
 # imagecoder.writeText()

@@ -7,6 +7,7 @@ import { useState, useReducer, useRef, useEffect } from "react";
 import PayloadContainer from "./components/PayloadContainer";
 import CoverContainer from "./components/CoverContainer";
 import { FireworkSpinner } from "react-spinners-kit";
+import HugeContainer from "./components/HugeContainer";
 
 const ENDPOINT_URL = "http://localhost:9999";
 
@@ -20,6 +21,7 @@ function App() {
 
   const [isUploading, setIsUploading] = useState(false);
   const [resultsURL, setResultsURL] = useState();
+  const [errorState, setErrorState] = useState();
 
   const reducer = (state, action) => {
     switch (action.type) {
@@ -72,6 +74,7 @@ function App() {
   function handleSubmit() {
     setIsUploading(true);
     setResultsURL(null);
+    setErrorState(null);
     const formData = new FormData();
     formData.append("payloadFile", payloadData.fileList[0]);
     formData.append("coverFile", coverData.fileList[0]);
@@ -86,9 +89,13 @@ function App() {
     })
       .then((response) => response.json())
       .then((response) => {
-        console.log("Success:", response);
+        console.log("Response Success:", response);
         setIsUploading(false);
-        setResultsURL(response.url + "&id=" + response.id);
+        if (response.error) {
+          setErrorState(response.error);
+        } else {
+          setResultsURL(response.url + "&id=" + response.id);
+        }
       })
       .catch((error) => {
         console.error("Error yo:", error);
@@ -122,7 +129,41 @@ function App() {
           imgData={coverPreviewUrl}
         ></CoverContainer>
       </div>
-      {resultsURL && <img src={resultsURL} height="500px"></img>}
+      {errorState && (
+        <div
+          style={{
+            background: "#cc212735",
+            padding: "20px",
+            borderRadius: "15px",
+            width: "70%",
+            display: "flex",
+            justifyContent: "center",
+            margin: "0 auto",
+          }}
+        >
+          {errorState}
+        </div>
+      )}
+      {resultsURL && (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            flexFlow: "wrap",
+          }}
+        >
+          <HugeContainer type="Result">
+            <img
+              src={resultsURL}
+              height="300px"
+              width="100%"
+              style={{ objectFit: "contain" }}
+            ></img>
+          </HugeContainer>
+        </div>
+      )}
+
       <div style={{ margin: "20px 40px" }}>
         {JSON.stringify(optionObject)}
 

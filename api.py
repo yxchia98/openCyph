@@ -39,30 +39,33 @@ def receiveOptions():
 @app.post('/uploadFile')
 def uploadFile():
     if 'payloadFile' not in request.files:
-        return jsonify("error payload not found"), 500
+        return jsonify({'error': f"Error: payload not found"})
     payloadFile = request.files['payloadFile']
     payloadFile.save(os.path.join("./payload_assets/",
                                   secure_filename(payloadFile.filename)))
     if 'coverFile' not in request.files:
-        return "nofile"
+        return jsonify({'error': f"Error: cover not found"})
     coverFile = request.files['coverFile']
     coverFile.save(os.path.join("./cover_assets/",
                                 secure_filename(coverFile.filename)))
     if 'optionObject' not in request.form:
-        return "nofile"
+        return jsonify({'error': f"Error: object not found"})
     optionObject = json.loads(request.form['optionObject'])
     print(optionObject)
 
-    sneakyBits = get_stream(
-        f"./payload_assets/{secure_filename(payloadFile.filename)}")
+    try:
+        sneakyBits = get_stream(
+            f"./payload_assets/{secure_filename(payloadFile.filename)}")
 
-    imagecoder = Encoder(
-        f"./cover_assets/{secure_filename(coverFile.filename)}")
-    imagecoder.setBitNumber(int(optionObject['coverNumBits']))
-    imagecoder.encode(sneakyBits)
-    # # imagecoder.writeText()
-    imagecoder.generateNewPic(
-        f"./results/img/imgResult{optionObject['id']}.png")
+        imagecoder = Encoder(
+            f"./cover_assets/{secure_filename(coverFile.filename)}")
+        imagecoder.setBitNumber(int(optionObject['coverNumBits']))
+        imagecoder.encode(sneakyBits)
+        # # imagecoder.writeText()
+        imagecoder.generateNewPic(
+            f"./results/img/imgResult{optionObject['id']}.png")
+    except Exception as e:
+        return jsonify({'error': f"{e}"})
     response = {
         'url': f"http://localhost:9999/getImage?type=stegoObject&id={optionObject['id']}",
         'id': optionObject['id']
