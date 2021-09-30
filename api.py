@@ -23,7 +23,6 @@ def getImage(id=0):
             if imgID:
                 return send_file(f'./results/img/imgResult{imgID}.png', mimetype='image/png')
 
-
 @app.post('/')
 def receiveOptions():
     data = request.json
@@ -71,6 +70,33 @@ def uploadFile():
         'id': optionObject['id']
     }
     return jsonify(response)
+
+@app.post('/decodeFile')
+def decodeFile():
+    if 'encodedFile' not in request.files:
+        return jsonify({'error': f"Error: encoded not found"})
+    encodedFile = request.files['encodedFile']
+    encodedFile.save(os.path.join("./encoded_assets/",
+                                  secure_filename(encodedFile.filename)))
+    if 'decodeOptionsObject' not in request.form:
+        return jsonify({'error': f"Error: object not found"})
+    decodeOptionsObject = json.loads(request.form['decodeOptionsObject'])
+    print(decodeOptionsObject)
+
+    try:
+        imagedecoder = Decoder(
+            f"./encoded_assets/{secure_filename(encodedFile.filename)}")
+        imagedecoder.setBitNumber(int(decodeOptionsObject['coverNumBits']))
+        imagedecoder.readPayload()
+        imagedecoder.extractEmbeddedToFile({decodeOptionsObject['id']})
+    except Exception as e:
+        return jsonify({'error': f"{e}"})
+    response = {
+        'url': f"http://localhost:9999/getImage?type=stegoObject&id={decodeOptionsObject['id']}",
+        'id': decodeOptionsObject['id']
+    }
+    return jsonify(response)
+
 
 
 if __name__ == '__main__':

@@ -189,10 +189,11 @@ class Decoder:
         self.payloadData = newArray.split(self.tail)[0]
         self.getFileType()
 
-    def extractEmbeddedToFile(self):
+    def extractEmbeddedToFile(self, objectId):
         print(f"* Writing to file as output{self.fileType}")
         binNum = bitarray(self.payloadData[4:]).tobytes()
-        file = open(f'./results/decoded_assets/output{self.fileType}', 'wb')
+        file = open(f'./results/decoded_assets/output{objectId}{self.fileType}', 'wb')
+        print('Output found at : \'' + f'./results/decoded_assets/output{objectId}{self.fileType}' + '\'')
         file.write(binNum)
         file.close()
         print("***** Done Decoding! *****\n")

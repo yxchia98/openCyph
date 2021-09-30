@@ -45,7 +45,7 @@ const FileUploadBox = styled.div`
 
 const DecodeContainer = (props) => {
   return (
-    <HugeContainer type='Cover Object'>
+    <HugeContainer type='Decode Encoded Object'>
       <ButtonChooser
         buttons={["8", "7", "6", "5", "4", "3", "2", "1"]}
         whenClick={(e) =>

@@ -7,6 +7,7 @@ import { Confetti } from "tabler-icons-react";
 import { useState, useReducer, useRef, useEffect } from "react";
 import PayloadContainer from "./components/PayloadContainer";
 import CoverContainer from "./components/CoverContainer";
+import DecodeContainer from "./components/DecodeContainer";
 import { FireworkSpinner } from "react-spinners-kit";
 import HugeContainer from "./components/HugeContainer";
 
@@ -211,5 +212,87 @@ function Encode() {
 }
 
 function Decode() {
-  return <h2>Decode</h2>;
+  const [decodeOptionsObject, setDecodeOptionsObject] = useState({
+    coverNumBits: "2",
+    id: "0",
+  });
+
+  const [isUploading, setIsUploading] = useState(false);
+  const [resultsURL, setResultsURL] = useState();
+  const [errorState, setErrorState] = useState();
+
+  const reducer = (state, action) => {
+    switch (action.type) {
+      case "SET_DROP_DEPTH":
+        return { ...state, dropDepth: action.dropDepth };
+      case "SET_IN_DROP_ZONE":
+        return { ...state, inDropZone: action.inDropZone };
+      case "ADD_FILE_TO_LIST":
+        return { ...state, fileList: state.fileList.concat(action.files) };
+      default:
+        return state;
+    }
+  };
+
+  const [encodedData, encodedDispatch] = useReducer(reducer, {
+    dropDepth: 0,
+    inDropZone: false,
+    fileList: [],
+  });
+
+  function handleSubmit() {
+    setIsUploading(true);
+    setResultsURL(null);
+    setErrorState(null);
+    const formData = new FormData();
+    formData.append("encodedFile", encodedData.fileList[0]);
+    formData.append("decodeOptionsObject", JSON.stringify({ ...decodeOptionsObject, id: Math.floor(Math.random() * 10000) }));
+
+    fetch(`${ENDPOINT_URL}/decodeFile`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        console.log("Response Success:", response);
+        setIsUploading(false);
+        if (response.error) {
+          setErrorState(response.error);
+        } else {
+          setResultsURL(response.url + "&id=" + response.id);
+        }
+      })
+      .catch((error) => {
+        console.error("Error yo:", error);
+        setIsUploading(false);
+      });
+  }
+
+  return (
+    <div className='App'>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "center",
+          flexFlow: "wrap",
+        }}
+      >
+        <DecodeContainer
+          setOptionsObject={setDecodeOptionsObject}
+          optionObject={decodeOptionsObject}
+          encodedData={encodedData}
+          encodedDispatch={encodedDispatch}
+        ></DecodeContainer>
+      </div>
+      <div style={{ margin: "20px 40px" }}>
+        {JSON.stringify(decodeOptionsObject)}
+
+        <Button handleClick={handleSubmit} float>
+          <Confetti></Confetti>
+          <span style={{ marginLeft: "8px" }}>Decode</span>
+        </Button>
+      </div>
+    </div>
+  );
 }
