@@ -83,9 +83,9 @@ def encode(videoName, secretData):
         cv2.imwrite(os.path.join("./temp", "encFrame{:d}.png".format(frame)), image)
         continue
 
-    call(["ffmpeg", "-i", "temp/encFrame%d.png", "-vcodec", "png", "temp/noAudioStegoVid.mp4", "-y"], stdout=open(os.devnull, "w"), stderr=STDOUT)
-    call(["ffmpeg", "-i", "temp/noAudioStegoVid.mp4", "-i", "temp/audio.mp3", "-codec", "copy", "temp/audioStegoVid.mp4", "-y"], stdout=open(os.devnull, "w"), stderr=STDOUT)
-    call(["ffmpeg", "-i", "temp/audioStegoVid.mp4", "-f", "avi", "-c:v", "huffyuv", "stegoVideo.avi"], stdout=open(os.devnull, "w"), stderr=STDOUT)
+    call(["ffmpeg", "-i", "temp/encFrame%d.png", "-vcodec", "png", "temp/noAudioStegoVid.avi", "-y"], stdout=open(os.devnull, "w"), stderr=STDOUT)
+    call(["ffmpeg", "-i", "temp/noAudioStegoVid.avi", "-i", "temp/audio.mp3", "-codec", "copy", "temp/audioStegoVid.avi", "-y"], stdout=open(os.devnull, "w"), stderr=STDOUT)
+    call(["ffmpeg", "-i", "temp/audioStegoVid.avi", "-f", "avi", "-c:v", "rawvideo", "-pix_fmt", "rgb32", "stegoVideo.avi"], stdout=open(os.devnull, "w"), stderr=STDOUT)
     clean("temp")
 
 def decode(videoName):
