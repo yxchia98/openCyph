@@ -71,7 +71,7 @@ const DecodeContainer = (props) => {
         <DragAndDrop data={props.encodedData} dispatch={props.encodedDispatch}>
           {props.encodedData.fileList[0] ? (
             <>
-              <img src='https://via.placeholder.com/350x150.jpg' height='300px' width='100%' style={{ objectFit: "contain", overflow: "hidden" }}></img>
+              <img src={props.imgData} height='300px' width='100%' style={{ objectFit: "contain", overflow: "hidden" }}></img>
               <SelectedFile>
                 {props.encodedData.fileList.map((f) => (
                   <>

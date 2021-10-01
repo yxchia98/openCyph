@@ -220,6 +220,7 @@ function Decode() {
   const [isUploading, setIsUploading] = useState(false);
   const [resultsURL, setResultsURL] = useState();
   const [errorState, setErrorState] = useState();
+  const [encodedPreviewUrl, setEncodedPreviewUrl] = useState("");
 
   const reducer = (state, action) => {
     switch (action.type) {
@@ -239,6 +240,18 @@ function Decode() {
     inDropZone: false,
     fileList: [],
   });
+
+  useEffect(() => {
+    let reader = new FileReader();
+    const [file] = encodedData.fileList;
+    if (file) {
+      console.log(encodedData.fileList[0]);
+      reader.onloadend = (e) => {
+        setEncodedPreviewUrl(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  }, [encodedData]);
 
   function handleSubmit() {
     setIsUploading(true);
@@ -283,13 +296,43 @@ function Decode() {
           optionObject={decodeOptionsObject}
           encodedData={encodedData}
           encodedDispatch={encodedDispatch}
+          imgData={encodedPreviewUrl}
         ></DecodeContainer>
       </div>
+      {errorState && (
+        <div
+          style={{
+            background: "#cc212735",
+            padding: "20px",
+            borderRadius: "15px",
+            width: "70%",
+            display: "flex",
+            justifyContent: "center",
+            margin: "0 auto",
+          }}
+        >
+          {errorState}
+        </div>
+      )}
+      {resultsURL && (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            flexFlow: "wrap",
+          }}
+        >
+          <HugeContainer type='Result'>
+            <img src={resultsURL} height='300px' width='100%' style={{ objectFit: "contain" }}></img>
+          </HugeContainer>
+        </div>
+      )}
       <div style={{ margin: "20px 40px" }}>
         {JSON.stringify(decodeOptionsObject)}
 
         <Button handleClick={handleSubmit} float>
-          <Confetti></Confetti>
+          {isUploading ? <FireworkSpinner loading={isUploading} size={20} color='#000' style={{ marginRight: "8px" }} /> : <Confetti></Confetti>}
           <span style={{ marginLeft: "8px" }}>Decode</span>
         </Button>
       </div>
