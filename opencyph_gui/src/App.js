@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import "./App.css";
 import styled from "styled-components";
 import Button from "./components/Button";
-import { Confetti } from "tabler-icons-react";
+import { Confetti, Download } from "tabler-icons-react";
 import { useState, useReducer, useRef, useEffect } from "react";
 import PayloadContainer from "./components/PayloadContainer";
 import CoverContainer from "./components/CoverContainer";
@@ -115,6 +115,10 @@ function Encode() {
     }
   }, [coverData]);
 
+  function handleDownload(sourceUrl) {
+    window.location.href = sourceUrl;
+  }
+
   function handleSubmit() {
     setIsUploading(true);
     setResultsURL(null);
@@ -195,6 +199,14 @@ function Encode() {
         >
           <HugeContainer type='Result'>
             <img src={resultsURL} height='300px' width='100%' style={{ objectFit: "contain" }}></img>
+            <Button
+              handleClick={() => {
+                handleDownload(resultsURL);
+              }}
+            >
+              <Download />
+              <span style={{ marginLeft: "8px" }}>Download</span>
+            </Button>
           </HugeContainer>
         </div>
       )}
@@ -253,6 +265,10 @@ function Decode() {
     }
   }, [encodedData]);
 
+  function handleDownload(sourceUrl) {
+    window.location.href = sourceUrl;
+  }
+
   function handleSubmit() {
     setIsUploading(true);
     setResultsURL(null);
@@ -272,7 +288,7 @@ function Decode() {
         if (response.error) {
           setErrorState(response.error);
         } else {
-          setResultsURL(response.url + "&id=" + response.id);
+          setResultsURL(response.url);
         }
       })
       .catch((error) => {
@@ -325,6 +341,14 @@ function Decode() {
         >
           <HugeContainer type='Result'>
             <img src={resultsURL} height='300px' width='100%' style={{ objectFit: "contain" }}></img>
+            <Button
+              handleClick={() => {
+                handleDownload(resultsURL);
+              }}
+            >
+              <Download />
+              <span style={{ marginLeft: "8px" }}>Download</span>
+            </Button>
           </HugeContainer>
         </div>
       )}

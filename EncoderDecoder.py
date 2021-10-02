@@ -197,3 +197,4 @@ class Decoder:
         file.write(binNum)
         file.close()
         print("***** Done Decoding! *****\n")
+        return self.fileType

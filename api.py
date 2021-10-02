@@ -23,6 +23,12 @@ def getImage(id=0):
             if imgID:
                 return send_file(f'./results/img/imgResult{imgID}.png', mimetype='image/png')
 
+@app.get('/getDecodedFile')
+def getDecodedFile():
+    outputId = request.args.get('id')
+    fileType = request.args.get('fileType')
+    return send_file(f'./results/decoded_assets/output{outputId}{fileType}')
+
 @app.post('/')
 def receiveOptions():
     data = request.json
@@ -88,11 +94,11 @@ def decodeFile():
             f"./encoded_assets/{secure_filename(encodedFile.filename)}")
         imagedecoder.setBitNumber(int(decodeOptionsObject['coverNumBits']))
         imagedecoder.readPayload()
-        imagedecoder.extractEmbeddedToFile({decodeOptionsObject['id']})
+        fileType = imagedecoder.extractEmbeddedToFile(decodeOptionsObject['id'])
     except Exception as e:
         return jsonify({'error': f"{e}"})
     response = {
-        'url': f"http://localhost:9999/getImage?type=stegoObject&id={decodeOptionsObject['id']}",
+        'url': f"http://localhost:9999/getDecodedFile?&id={decodeOptionsObject['id']}&fileType={fileType}",
         'id': decodeOptionsObject['id']
     }
     return jsonify(response)
