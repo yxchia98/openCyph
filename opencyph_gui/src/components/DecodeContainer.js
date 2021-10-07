@@ -43,20 +43,9 @@ const FileUploadBox = styled.div`
   color: white;
 `;
 
-const CoverContainer = (props) => {
+const DecodeContainer = (props) => {
   return (
-    <HugeContainer type="Cover Object">
-      <ButtonChooser
-        buttons={["image", "wav", "mp4"]}
-        whenClick={(e) =>
-          props.setOptionsObject({
-            ...props.optionObject,
-            coverType: e.target.name,
-          })
-        }
-        title="File Type"
-        defaultIndex="0"
-      />
+    <HugeContainer type='Decode Encoded Object'>
       <ButtonChooser
         buttons={["8", "7", "6", "5", "4", "3", "2", "1"]}
         whenClick={(e) =>
@@ -65,8 +54,8 @@ const CoverContainer = (props) => {
             coverNumBits: e.target.name,
           })
         }
-        title="Number of Bits"
-        defaultIndex="6"
+        title='Number of Bits'
+        defaultIndex='6'
       />
 
       <div
@@ -79,17 +68,12 @@ const CoverContainer = (props) => {
           justifyContent: "center",
         }}
       >
-        <DragAndDrop data={props.coverData} dispatch={props.coverDispatch}>
-          {props.coverData.fileList[0] ? (
+        <DragAndDrop data={props.encodedData} dispatch={props.encodedDispatch}>
+          {props.encodedData.fileList[0] ? (
             <>
-              <img
-                src={props.imgData}
-                height="300px"
-                width="100%"
-                style={{ objectFit: "contain", overflow: "hidden" }}
-              ></img>
+              <img src={props.imgData} height='300px' width='100%' style={{ objectFit: "contain", overflow: "hidden" }}></img>
               <SelectedFile>
-                {props.coverData.fileList.map((f) => (
+                {props.encodedData.fileList.map((f) => (
                   <>
                     <span
                       style={{
@@ -115,11 +99,7 @@ const CoverContainer = (props) => {
             </>
           ) : (
             <FileUploadBox>
-              <FileUpload
-                size={88}
-                color="white"
-                style={{ strokeWidth: "1.2", marginBottom: "15px" }}
-              ></FileUpload>
+              <FileUpload size={88} color='white' style={{ strokeWidth: "1.2", marginBottom: "15px" }}></FileUpload>
               <span>Drag n' Drop your file here</span>
             </FileUploadBox>
           )}
@@ -129,4 +109,4 @@ const CoverContainer = (props) => {
   );
 };
 
-export default CoverContainer;
+export default DecodeContainer;

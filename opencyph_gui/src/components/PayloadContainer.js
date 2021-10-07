@@ -17,10 +17,11 @@ const SelectedFile = styled.span`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  height: 2em;
+  height: 4em;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
 `;
 
 const InputText = styled.textarea`
@@ -105,9 +106,42 @@ const PayloadContainer = (props) => {
             dispatch={props.payloadDispatch}
           >
             {props.payloadData.fileList[0] ? (
-              <SelectedFile>
-                {props.payloadData.fileList.map((f) => f.name)}
-              </SelectedFile>
+              <>
+                {props.imgData.includes("data:image/") ? (
+                  <img
+                    src={props.imgData}
+                    height="300px"
+                    width="300px"
+                    style={{ objectFit: "contain" }}
+                  ></img>
+                ) : (
+                  <h3>No Preview 😔</h3>
+                )}
+                <SelectedFile>
+                  {props.payloadData.fileList.map((f) => (
+                    <>
+                      <span
+                        style={{
+                          fontSize: "16px",
+                        }}
+                      >
+                        {f.name}
+                      </span>
+                      <span
+                        style={{
+                          padding: "5px",
+                          background: "#ddd",
+                          borderRadius: "8px",
+                          marginTop: "8px",
+                          fontSize: "12px",
+                        }}
+                      >
+                        {(f.size / 1000).toFixed(2)}kb
+                      </span>
+                    </>
+                  ))}
+                </SelectedFile>
+              </>
             ) : (
               <FileUploadBox>
                 <FileUpload

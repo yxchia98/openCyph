@@ -2,10 +2,10 @@ from flask import Flask, send_file, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
-
-
-from img.encoder import Encoder
-from img.decoder import Decoder
+import json
+import os
+from EncoderDecoder import Encoder, Decoder
+from filestream import get_stream
 
 
 app = Flask(__name__)
@@ -13,24 +13,26 @@ CORS(app)
 
 
 @app.get('/getImage')
-def getImage():
+def getImage(id=0):
     imgType = request.args.get('type')
     if imgType:
         if imgType == "coverObject":
             return send_file("./cover_assets/doge.jpg", mimetype='image/png')
         elif imgType == "stegoObject":
-            return send_file('./results/img/imgResult.png', mimetype='image/png')
+            imgID = request.args.get('id')
+            if imgID:
+                return send_file(f'./results/img/imgResult{imgID}.png', mimetype='image/png')
 
+@app.get('/getDecodedFile')
+def getDecodedFile():
+    outputId = request.args.get('id')
+    fileType = request.args.get('fileType')
+    return send_file(f'./results/decoded_assets/output{outputId}{fileType}')
 
 @app.post('/')
 def receiveOptions():
     data = request.json
 
-    imgEncoder = Encoder("./cover_assets/doge.jpg")
-    imgEncoder.setBitNumber(int(data['numBits']))
-    imgEncoder.encode(1122334455)
-    # data['filetype']
-    imgEncoder.generateNewPic("./results/img/imgResult.png")
     result = {
         'coverObject': './cover_assets/doge.jpg',
         'stegoObject': './results/img/imgResult.png'
@@ -41,14 +43,66 @@ def receiveOptions():
 
 @app.post('/uploadFile')
 def uploadFile():
-    if 'file' not in request.files:
-        return "nofile"
-    file = request.files['file']
-    if file.filename == '':
-        return 'no filename'
+    if 'payloadFile' not in request.files:
+        return jsonify({'error': f"Error: payload not found"})
+    payloadFile = request.files['payloadFile']
+    payloadFile.save(os.path.join("./payload_assets/",
+                                  secure_filename(payloadFile.filename)))
+    if 'coverFile' not in request.files:
+        return jsonify({'error': f"Error: cover not found"})
+    coverFile = request.files['coverFile']
+    coverFile.save(os.path.join("./cover_assets/",
+                                secure_filename(coverFile.filename)))
+    if 'optionObject' not in request.form:
+        return jsonify({'error': f"Error: object not found"})
+    optionObject = json.loads(request.form['optionObject'])
+    print(optionObject)
 
-    print(file)
-    return "File saved successfully"
+    try:
+        sneakyBits = get_stream(
+            f"./payload_assets/{secure_filename(payloadFile.filename)}")
+
+        imagecoder = Encoder(
+            f"./cover_assets/{secure_filename(coverFile.filename)}")
+        imagecoder.setBitNumber(int(optionObject['coverNumBits']))
+        imagecoder.encode(sneakyBits)
+        # # imagecoder.writeText()
+        imagecoder.generateNewPic(
+            f"./results/img/imgResult{optionObject['id']}.png")
+    except Exception as e:
+        return jsonify({'error': f"{e}"})
+    response = {
+        'url': f"http://localhost:9999/getImage?type=stegoObject&id={optionObject['id']}",
+        'id': optionObject['id']
+    }
+    return jsonify(response)
+
+@app.post('/decodeFile')
+def decodeFile():
+    if 'encodedFile' not in request.files:
+        return jsonify({'error': f"Error: encoded not found"})
+    encodedFile = request.files['encodedFile']
+    encodedFile.save(os.path.join("./encoded_assets/",
+                                  secure_filename(encodedFile.filename)))
+    if 'decodeOptionsObject' not in request.form:
+        return jsonify({'error': f"Error: object not found"})
+    decodeOptionsObject = json.loads(request.form['decodeOptionsObject'])
+    print(decodeOptionsObject)
+
+    try:
+        imagedecoder = Decoder(
+            f"./encoded_assets/{secure_filename(encodedFile.filename)}")
+        imagedecoder.setBitNumber(int(decodeOptionsObject['coverNumBits']))
+        imagedecoder.readPayload()
+        fileType = imagedecoder.extractEmbeddedToFile(decodeOptionsObject['id'])
+    except Exception as e:
+        return jsonify({'error': f"{e}"})
+    response = {
+        'url': f"http://localhost:9999/getDecodedFile?&id={decodeOptionsObject['id']}&fileType={fileType}",
+        'id': decodeOptionsObject['id']
+    }
+    return jsonify(response)
+
 
 
 if __name__ == '__main__':
