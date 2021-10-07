@@ -6,6 +6,7 @@ import json
 import os
 from EncoderDecoder import Encoder, Decoder
 from filestream import get_stream
+from audio import AudioCoder
 
 
 app = Flask(__name__)
@@ -22,6 +23,12 @@ def getImage(id=0):
             imgID = request.args.get('id')
             if imgID:
                 return send_file(f'./results/img/imgResult{imgID}.png', mimetype='image/png')
+
+@app.get('/getWav')
+def getWav(id=0):
+    wavID = request.args.get('id')
+    return send_file(f'./results/wav/wavResult{wavID}.wav', mimetype='audio/wav')
+
 
 @app.get('/getDecodedFile')
 def getDecodedFile():
@@ -58,23 +65,35 @@ def uploadFile():
     optionObject = json.loads(request.form['optionObject'])
     print(optionObject)
 
-    try:
-        sneakyBits = get_stream(
-            f"./payload_assets/{secure_filename(payloadFile.filename)}")
+    if optionObject['coverType'] == "image":
+        try:
+            sneakyBits = get_stream(
+                f"./payload_assets/{secure_filename(payloadFile.filename)}")
 
-        imagecoder = Encoder(
-            f"./cover_assets/{secure_filename(coverFile.filename)}")
-        imagecoder.setBitNumber(int(optionObject['coverNumBits']))
-        imagecoder.encode(sneakyBits)
-        # # imagecoder.writeText()
-        imagecoder.generateNewPic(
-            f"./results/img/imgResult{optionObject['id']}.png")
-    except Exception as e:
-        return jsonify({'error': f"{e}"})
-    response = {
-        'url': f"http://localhost:9999/getImage?type=stegoObject&id={optionObject['id']}",
-        'id': optionObject['id']
-    }
+            imagecoder = Encoder(
+                f"./cover_assets/{secure_filename(coverFile.filename)}")
+            imagecoder.setBitNumber(int(optionObject['coverNumBits']))
+            imagecoder.encode(sneakyBits)
+            # # imagecoder.writeText()
+            imagecoder.generateNewPic(
+                f"./results/img/imgResult{optionObject['id']}.png")
+        except Exception as e:
+            return jsonify({'error': f"{e}"})
+        response = {
+            'url': f"http://localhost:9999/getImage?type=stegoObject&id={optionObject['id']}",
+            'id': optionObject['id']
+        }
+    elif optionObject['coverType'] == "wav":
+        try:
+            audioencoder = AudioCoder()
+            audioencoder.encode_audio(f"./cover_assets/{secure_filename(coverFile.filename)}", f"./results/wav/wavResult{optionObject['id']}.wav", f"./payload_assets/{secure_filename(payloadFile.filename)}", int(optionObject['coverNumBits']))
+        except Exception as e:
+            return jsonify({'error': f"{e}"})
+        response = {
+            'url': f"http://localhost:9999/getWav?id={optionObject['id']}",
+            'id': optionObject['id']
+        }
+
     return jsonify(response)
 
 @app.post('/decodeFile')
@@ -89,18 +108,30 @@ def decodeFile():
     decodeOptionsObject = json.loads(request.form['decodeOptionsObject'])
     print(decodeOptionsObject)
 
-    try:
-        imagedecoder = Decoder(
-            f"./encoded_assets/{secure_filename(encodedFile.filename)}")
-        imagedecoder.setBitNumber(int(decodeOptionsObject['coverNumBits']))
-        imagedecoder.readPayload()
-        fileType = imagedecoder.extractEmbeddedToFile(decodeOptionsObject['id'])
-    except Exception as e:
-        return jsonify({'error': f"{e}"})
-    response = {
-        'url': f"http://localhost:9999/getDecodedFile?&id={decodeOptionsObject['id']}&fileType={fileType}",
-        'id': decodeOptionsObject['id']
-    }
+    if decodeOptionsObject['coverType'] == 'image':
+        try:
+            imagedecoder = Decoder(
+                f"./encoded_assets/{secure_filename(encodedFile.filename)}")
+            imagedecoder.setBitNumber(int(decodeOptionsObject['coverNumBits']))
+            imagedecoder.readPayload()
+            fileType = imagedecoder.extractEmbeddedToFile(decodeOptionsObject['id'])
+        except Exception as e:
+            return jsonify({'error': f"{e}"})
+        response = {
+            'url': f"http://localhost:9999/getDecodedFile?&id={decodeOptionsObject['id']}&fileType={fileType}",
+            'id': decodeOptionsObject['id']
+        }
+    elif decodeOptionsObject['coverType'] == 'wav':
+        try:
+            audiodecoder = AudioCoder()
+            fileType = audiodecoder.decode_audio(f"./encoded_assets/{secure_filename(encodedFile.filename)}", f"./results/decoded_assets/output{decodeOptionsObject['id']}", int(decodeOptionsObject['coverNumBits']), 'file')
+        except Exception as e:
+            return jsonify({'error': f"{e}"})
+        response = {
+            'url': f"http://localhost:9999/getDecodedFile?&id={decodeOptionsObject['id']}&fileType={fileType}",
+            'id': decodeOptionsObject['id']
+        }
+    
     return jsonify(response)
 
 

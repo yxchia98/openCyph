@@ -226,6 +226,7 @@ function Encode() {
 function Decode() {
   const [decodeOptionsObject, setDecodeOptionsObject] = useState({
     coverNumBits: "2",
+    coverType: "image",
     id: "0",
   });
 

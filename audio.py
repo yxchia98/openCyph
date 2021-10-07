@@ -171,8 +171,8 @@ class AudioCoder:
                 prevprev_char = prev_char
                 prev_char = current_char
                 decoded_string += byte
-            filestream.generate_from_stream(decoded_string, dest)
-            return
+            extension = filestream.generate_from_stream(decoded_string, dest)
+            return extension
         else:
             decoded_bin = [decoded_bin[index: index + 8] for index in range(0, len(decoded_bin), 8)]
             for byte in decoded_bin:
@@ -191,24 +191,3 @@ class AudioCoder:
                 newfile.close()
             print('[*] Successfully decoded and exported to', dest)
             return decoded_string
-
-
-
-# if __name__ == '__main__':
-#     audio = AudioCoder()
-#     source_file = './cover_assets/audio.mp3'
-#     embedded_file = './results/wav/audio_embedded.wav'
-#     decoded_file = './results/decoded_audio.jpg'
-#     bitrange = 2
-#     payload = './payload_assets/doge.jpg'
-#     # payload = 'THIS IS A SECRET TEXT'
-#     audio.encode_audio(source_file, embedded_file, payload, bitrange)
-#     audio.decode_audio(embedded_file, decoded_file, bitrange, 'file')
-
-    # audio.get_stream(source_file)
-
-
-
-
-
-

@@ -121,7 +121,7 @@ def generate_from_stream(data, dest):
     file = open(dest, "wb")
     file.write(datastream)
     file.close
-    return
+    return extension
 
 
 if __name__ == '__main__':
