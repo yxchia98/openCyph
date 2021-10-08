@@ -26,6 +26,16 @@ imagecoder.generateNewPic("./results/img/imgResult.png")
 # audio.encode_audio(source_file, embedded_file, payload, bitrange)
 # audio.decode_audio(embedded_file, decoded_text, bitrange)
 
+# Video Encoder
+#video = VideoCoder()
+#source_file = "./cover_assets/coverWaterfall.mp4"
+#embedded_file = "./encoded_assets/stegoVideo.avi"
+#decoded_text = "./encoded_assets/decoded_video.txt"
+#bitRange = 3
+#payload = "There are many variations of passages of Lorem Ipsum available"
+#video.encode_video(source_file, payload, bitRange)
+#video.decode_video(embedded_file, decoded_text, bitRange)
+
 imagedecoder = Decoder("./results/img/imgResult.png")
 imagedecoder.setBitNumber(6)
 imagedecoder.readPayload()
