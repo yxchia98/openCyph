@@ -1,6 +1,7 @@
 from EncoderDecoder import Encoder, Decoder
 from filestream import format_identifier, get_stream
 from audio import AudioCoder
+from video import VideoCoder
 
 # Choose one file
 # sneakyBits = get_stream("payload_assets/bloop.mp4")
