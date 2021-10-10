@@ -71,17 +71,26 @@ const FileUploadBox = styled.div`
 
 const PayloadContainer = (props) => {
   return (
-    <HugeContainer type="Payload Object">
+    <HugeContainer type='Payload Object'>
       <ButtonChooser
         buttons={["plaintext", "mylife"]}
-        whenClick={(e) =>
-          props.setOptionsObject({
-            ...props.optionObject,
-            payloadType: e.target.name,
-          })
-        }
-        title="File Type"
-        defaultIndex="0"
+        whenClick={(e) => {
+          if (e.target.name === "plaintext") {
+            props.setOptionsObject({
+              ...props.optionObject,
+              payloadType: e.target.name,
+              coverType: "mp4",
+            });
+          } else {
+            props.setOptionsObject({
+              ...props.optionObject,
+              payloadType: e.target.name,
+              coverType: "image",
+            });
+          }
+        }}
+        title='File Type'
+        defaultIndex='0'
       />
 
       <div
@@ -95,25 +104,14 @@ const PayloadContainer = (props) => {
         }}
       >
         {props.optionObject.payloadType === "plaintext" && (
-          <InputText
-            type="text"
-            placeholder="Enter your text here..."
-          ></InputText>
+          <InputText type='text' placeholder='Enter your text here...' onChange={(e) => props.setTextData(e.target.value)}></InputText>
         )}
         {props.optionObject.payloadType !== "plaintext" && (
-          <DragAndDrop
-            data={props.payloadData}
-            dispatch={props.payloadDispatch}
-          >
+          <DragAndDrop data={props.payloadData} dispatch={props.payloadDispatch}>
             {props.payloadData.fileList[0] ? (
               <>
                 {props.imgData.includes("data:image/") ? (
-                  <img
-                    src={props.imgData}
-                    height="300px"
-                    width="300px"
-                    style={{ objectFit: "contain" }}
-                  ></img>
+                  <img src={props.imgData} height='300px' width='300px' style={{ objectFit: "contain" }}></img>
                 ) : (
                   <h3>No Preview 😔</h3>
                 )}
@@ -144,11 +142,7 @@ const PayloadContainer = (props) => {
               </>
             ) : (
               <FileUploadBox>
-                <FileUpload
-                  size={88}
-                  color="white"
-                  style={{ strokeWidth: "1.2", marginBottom: "15px" }}
-                ></FileUpload>
+                <FileUpload size={88} color='white' style={{ strokeWidth: "1.2", marginBottom: "15px" }}></FileUpload>
                 <span>Drag n' Drop your file here</span>
               </FileUploadBox>
             )}

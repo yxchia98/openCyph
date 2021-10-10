@@ -45,18 +45,33 @@ const FileUploadBox = styled.div`
 
 const CoverContainer = (props) => {
   return (
-    <HugeContainer type="Cover Object">
-      <ButtonChooser
-        buttons={["image", "wav", "mp4"]}
-        whenClick={(e) =>
-          props.setOptionsObject({
-            ...props.optionObject,
-            coverType: e.target.name,
-          })
-        }
-        title="File Type"
-        defaultIndex="0"
-      />
+    <HugeContainer type='Cover Object'>
+      {props.optionObject.payloadType === "plaintext" && (
+        <ButtonChooser
+          buttons={["mp4"]}
+          whenClick={(e) =>
+            props.setOptionsObject({
+              ...props.optionObject,
+              coverType: e.target.name,
+            })
+          }
+          title='File Type'
+          defaultIndex='0'
+        />
+      )}
+      {props.optionObject.payloadType !== "plaintext" && (
+        <ButtonChooser
+          buttons={["image", "wav"]}
+          whenClick={(e) =>
+            props.setOptionsObject({
+              ...props.optionObject,
+              coverType: e.target.name,
+            })
+          }
+          title='File Type'
+          defaultIndex='0'
+        />
+      )}
       <ButtonChooser
         buttons={["8", "7", "6", "5", "4", "3", "2", "1"]}
         whenClick={(e) =>
@@ -65,8 +80,8 @@ const CoverContainer = (props) => {
             coverNumBits: e.target.name,
           })
         }
-        title="Number of Bits"
-        defaultIndex="6"
+        title='Number of Bits'
+        defaultIndex='6'
       />
 
       <div
@@ -82,12 +97,7 @@ const CoverContainer = (props) => {
         <DragAndDrop data={props.coverData} dispatch={props.coverDispatch}>
           {props.coverData.fileList[0] ? (
             <>
-              <img
-                src={props.imgData}
-                height="300px"
-                width="100%"
-                style={{ objectFit: "contain", overflow: "hidden" }}
-              ></img>
+              <img src={props.imgData} height='300px' width='100%' style={{ objectFit: "contain", overflow: "hidden" }}></img>
               <SelectedFile>
                 {props.coverData.fileList.map((f) => (
                   <>
@@ -115,11 +125,7 @@ const CoverContainer = (props) => {
             </>
           ) : (
             <FileUploadBox>
-              <FileUpload
-                size={88}
-                color="white"
-                style={{ strokeWidth: "1.2", marginBottom: "15px" }}
-              ></FileUpload>
+              <FileUpload size={88} color='white' style={{ strokeWidth: "1.2", marginBottom: "15px" }}></FileUpload>
               <span>Drag n' Drop your file here</span>
             </FileUploadBox>
           )}

@@ -58,10 +58,12 @@ function Home() {
 function Encode() {
   const [optionObject, setOptionsObject] = useState({
     payloadType: "plaintext",
-    coverType: "image",
+    coverType: "mp4",
     coverNumBits: "2",
     id: "0",
   });
+
+  const [textData, setTextData] = useState("");
 
   const [isUploading, setIsUploading] = useState(false);
   const [resultsURL, setResultsURL] = useState();
@@ -124,9 +126,15 @@ function Encode() {
     setResultsURL(null);
     setErrorState(null);
     const formData = new FormData();
-    formData.append("payloadFile", payloadData.fileList[0]);
-    formData.append("coverFile", coverData.fileList[0]);
-    formData.append("optionObject", JSON.stringify({ ...optionObject, id: Math.floor(Math.random() * 10000) }));
+
+    if (optionObject.coverType !== "mp4") {
+      formData.append("payloadFile", payloadData.fileList[0]);
+      formData.append("coverFile", coverData.fileList[0]);
+      formData.append("optionObject", JSON.stringify({ ...optionObject, id: Math.floor(Math.random() * 10000) }));
+    } else {
+      formData.append("coverFile", coverData.fileList[0]);
+      formData.append("optionObject", JSON.stringify({ ...optionObject, id: Math.floor(Math.random() * 10000), payloadText: textData }));
+    }
 
     fetch(`${ENDPOINT_URL}/uploadFile`, {
       method: "POST",
@@ -161,6 +169,8 @@ function Encode() {
         <PayloadContainer
           setOptionsObject={setOptionsObject}
           optionObject={optionObject}
+          textData={textData}
+          setTextData={setTextData}
           payloadData={payloadData}
           payloadDispatch={payloadDispatch}
           imgData={payloadPreviewUrl}
