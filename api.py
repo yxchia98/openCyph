@@ -7,6 +7,7 @@ import os
 from EncoderDecoder import Encoder, Decoder
 from filestream import get_stream
 from audio import AudioCoder
+from video import VideoCoder
 
 
 app = Flask(__name__)
@@ -29,6 +30,10 @@ def getWav(id=0):
     wavID = request.args.get('id')
     return send_file(f'./results/wav/wavResult{wavID}.wav', mimetype='audio/wav')
 
+@app.get('/getAvi')
+def getAvi(id=0):
+    aviID = request.args.get('id')
+    return send_file(f'./results/avi/aviResult{aviID}.avi', mimetype='video/x-msvideo')
 
 @app.get('/getDecodedFile')
 def getDecodedFile():
@@ -50,20 +55,29 @@ def receiveOptions():
 
 @app.post('/uploadFile')
 def uploadFile():
-    if 'payloadFile' not in request.files:
-        return jsonify({'error': f"Error: payload not found"})
-    payloadFile = request.files['payloadFile']
-    payloadFile.save(os.path.join("./payload_assets/",
-                                  secure_filename(payloadFile.filename)))
-    if 'coverFile' not in request.files:
-        return jsonify({'error': f"Error: cover not found"})
-    coverFile = request.files['coverFile']
-    coverFile.save(os.path.join("./cover_assets/",
-                                secure_filename(coverFile.filename)))
+    
     if 'optionObject' not in request.form:
         return jsonify({'error': f"Error: object not found"})
     optionObject = json.loads(request.form['optionObject'])
     print(optionObject)
+
+    if optionObject['payloadType'] != 'plaintext':
+        if 'payloadFile' not in request.files:
+            return jsonify({'error': f"Error: payload not found"})
+        payloadFile = request.files['payloadFile']
+        payloadFile.save(os.path.join("./payload_assets/",
+                                    secure_filename(payloadFile.filename)))
+        if 'coverFile' not in request.files:
+            return jsonify({'error': f"Error: cover not found"})
+        coverFile = request.files['coverFile']
+        coverFile.save(os.path.join("./cover_assets/",
+                                    secure_filename(coverFile.filename)))
+    else:
+        if 'coverFile' not in request.files:
+            return jsonify({'error': f"Error: cover not found"})
+        coverFile = request.files['coverFile']
+        coverFile.save(os.path.join("./cover_assets/",
+                                    secure_filename(coverFile.filename)))
 
     if optionObject['coverType'] == "image":
         try:
@@ -91,6 +105,16 @@ def uploadFile():
             return jsonify({'error': f"{e}"})
         response = {
             'url': f"http://localhost:9999/getWav?id={optionObject['id']}",
+            'id': optionObject['id']
+        }
+    elif optionObject['coverType'] == 'mp4':
+        try:
+            videoencoder = VideoCoder()
+            videoencoder.encode_video(f"./cover_assets/{secure_filename(coverFile.filename)}", str(optionObject['payloadText']), int(optionObject['coverNumBits']), int(optionObject['id']))
+        except Exception as e:
+            return jsonify({'error': f"{e}"})
+        response = {
+            'url': f"http://localhost:9999/getAvi?id={optionObject['id']}",
             'id': optionObject['id']
         }
 

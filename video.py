@@ -44,7 +44,7 @@ class VideoCoder:
             shutil.rmtree("./" + path)
             print("[INFO] " + path + " files cleaned up")
 
-    def encode_video(self, videoName, secretData, bitRange):
+    def encode_video(self, videoName, secretData, bitRange, objectId):
         if os.path.exists("./encoded_assets/decoded_video.txt"):
             os.remove("./encoded_assets/decoded_video.txt")
         if os.path.exists("./encoded_assets/stegoVideo.avi"):
@@ -143,7 +143,7 @@ class VideoCoder:
 
         call(["ffmpeg", "-i", "temp/frame%d.png", "-vcodec", "png", "temp/noAudioStegoVid.avi", "-y"], stdout=open(os.devnull, "w"), stderr=STDOUT)
         call(["ffmpeg", "-i", "temp/noAudioStegoVid.avi", "-i", "temp/audio.mp3", "-codec", "copy", "temp/audioStegoVid.avi", "-y"], stdout=open(os.devnull, "w"), stderr=STDOUT)
-        call(["ffmpeg", "-i", "temp/audioStegoVid.avi", "-f", "avi", "-c:v", "rawvideo", "-pix_fmt", "rgb32", "./encoded_assets/stegoVideo.avi"], stdout=open(os.devnull, "w"), stderr=STDOUT)
+        call(["ffmpeg", "-i", "temp/audioStegoVid.avi", "-f", "avi", "-c:v", "rawvideo", "-pix_fmt", "rgb32", f"./results/avi/aviResult{objectId}.avi"], stdout=open(os.devnull, "w"), stderr=STDOUT)
         self.clean("temp")
 
     def decode_video(self, videoName, decodedText, bitRange):

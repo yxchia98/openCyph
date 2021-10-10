@@ -7,15 +7,15 @@ from video import VideoCoder
 # sneakyBits = get_stream("payload_assets/bloop.mp4")
 # sneakyBits = get_stream("payload_assets/pinout.png")
 # sneakyBits = get_stream("payload_assets/printer.pdf")
-sneakyBits = get_stream("payload_assets/doge.jpg")
+#sneakyBits = get_stream("payload_assets/doge.jpg")
 # sneakyBits = get_stream("payload_assets/test.txt")
 
 # Any Payload to Image Cover
-imagecoder = Encoder("./cover_assets/TB1NAt.UEY1gK0jSZFC0.gwqXXa.jpg")
-imagecoder.setBitNumber(6)
-imagecoder.encode(sneakyBits)
+#imagecoder = Encoder("./cover_assets/TB1NAt.UEY1gK0jSZFC0.gwqXXa.jpg")
+#imagecoder.setBitNumber(6)
+#imagecoder.encode(sneakyBits)
 # imagecoder.writeText()
-imagecoder.generateNewPic("./results/img/imgResult.png")
+#imagecoder.generateNewPic("./results/img/imgResult.png")
 
 # Audio Encoder
 # audio = AudioCoder()
@@ -28,16 +28,16 @@ imagecoder.generateNewPic("./results/img/imgResult.png")
 # audio.decode_audio(embedded_file, decoded_text, bitrange)
 
 # Video Encoder
-#video = VideoCoder()
-#source_file = "./cover_assets/coverWaterfall.mp4"
-#embedded_file = "./encoded_assets/stegoVideo.avi"
-#decoded_text = "./encoded_assets/decoded_video.txt"
-#bitRange = 3
+video = VideoCoder()
+source_file = "./cover_assets/coverWaterfall.mp4"
+embedded_file = "./encoded_assets/stegoVideo.avi"
+decoded_text = "./encoded_assets/decoded_video.txt"
+bitRange = 4
 #payload = "There are many variations of passages of Lorem Ipsum available"
 #video.encode_video(source_file, payload, bitRange)
-#video.decode_video(embedded_file, decoded_text, bitRange)
+video.decode_video(embedded_file, decoded_text, bitRange)
 
-imagedecoder = Decoder("./results/img/imgResult.png")
-imagedecoder.setBitNumber(6)
-imagedecoder.readPayload()
-imagedecoder.extractEmbeddedToFile(123)
+#imagedecoder = Decoder("./results/img/imgResult.png")
+#imagedecoder.setBitNumber(6)
+#imagedecoder.readPayload()
+#imagedecoder.extractEmbeddedToFile(123)
