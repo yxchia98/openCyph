@@ -47,7 +47,7 @@ const DecodeContainer = (props) => {
   return (
     <HugeContainer type='Decode Encoded Object'>
       <ButtonChooser
-        buttons={["image", "wav", "mp4"]}
+        buttons={["image", "wav", "avi"]}
         whenClick={(e) =>
           props.setOptionsObject({
             ...props.optionObject,

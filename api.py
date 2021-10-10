@@ -39,7 +39,10 @@ def getAvi(id=0):
 def getDecodedFile():
     outputId = request.args.get('id')
     fileType = request.args.get('fileType')
-    return send_file(f'./results/decoded_assets/output{outputId}{fileType}')
+    if fileType == '.txt':
+        return send_file(f'./results/decoded_assets/outputText{outputId}{fileType}')
+    else:
+        return send_file(f'./results/decoded_assets/output{outputId}{fileType}')
 
 @app.post('/')
 def receiveOptions():
@@ -153,6 +156,16 @@ def decodeFile():
             return jsonify({'error': f"{e}"})
         response = {
             'url': f"http://localhost:9999/getDecodedFile?&id={decodeOptionsObject['id']}&fileType={fileType}",
+            'id': decodeOptionsObject['id']
+        }
+    elif decodeOptionsObject['coverType'] == 'avi':
+        try:
+            videodecoder = VideoCoder()
+            videodecoder.decode_video(f"./encoded_assets/{secure_filename(encodedFile.filename)}", f"./results/decoded_assets/outputText{decodeOptionsObject['id']}.txt", int(decodeOptionsObject['coverNumBits']))
+        except Exception as e:
+            return jsonify({'error': f"{e}"})
+        response = {
+            'url': f"http://localhost:9999/getDecodedFile?&id={decodeOptionsObject['id']}&fileType=.txt",
             'id': decodeOptionsObject['id']
         }
     
