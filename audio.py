@@ -27,25 +27,19 @@ class AudioCoder:
 
 
     def convert_audio(self, source, dest):
-        # (
-        #     ffmpeg
-        #     .input(source)
-        #     .output(dest)
-        #     .overwrite_output()
-        #     .run()
-        # )
         print('[*] Converting', source[-3:], 'to', dest[-3:], '...')
-        if source[-4:] == '.mp3':
+        if source[-4:] == '.mp3':       # check if its a mp3 file, if it is, then convert to wav
             AudioSegment.from_mp3(source).export(dest, format=dest[-3:])
             return
         if source[-4:] == '.wav':
             AudioSegment.from_mp3(source).export(dest, format=dest[-3:])
-            # AudioSegment.from_wav(source).export(dest, format=dest[-3:])
         return
 
-    def limit_check(self, payload, cover, bitrange):
+    def limit_check(self, payload, cover_frames, bitrange):
         payload_length = len(payload)
-        cover_length = len(cover)
+        cover_length = len(cover_frames)
+        print('Payload length:', payload_length)
+        print('Cover length:', cover_length)
         if(payload_length > (cover_length * bitrange)):
             return 1
         return 0
@@ -76,11 +70,11 @@ class AudioCoder:
             dest += '.wav'
         if not os.path.exists(source):
             print('[!] Source file does not exist, only .wav files are accepted for encoding')
-            return
+            return 1
         # check if payload is a file or plaintext
         if os.path.exists(payload):
-            bin_payload = filestream.get_stream(payload)
-            # Append delimiter 5= to payload
+            bin_payload = filestream.get_stream(payload)    # convert file's bytestream to binary stream, at the same time appending file type identifier
+            # Append delimiter A5= to payload
             bin_payload += self.to_bin('A5=')
         else:
             print('[*] Payload is not a file, encoding as plaintext')
@@ -89,16 +83,16 @@ class AudioCoder:
             # Convert payload to binary
             bin_payload = self.to_bin(payload)
 
-
-        print('[*] Encoding...')
-        song = wave.open(source, 'rb')
-        # print('Channels: ', song.getnchannels(), '\nSample width:', song.getsampwidth(), '\nFramerate: ',
-        #       song.getframerate(), '\nFrames: ', song.getnframes())
-        # print(song.getparams())
+        song = wave.open(source, 'rb')      # open audio file
         # Get all frames in wav
-        frames = song.readframes(song.getnframes())
+        frames = song.readframes(song.getnframes())         # read all frames and store them
+        # Do limit checking
+        if self.limit_check(bin_payload, frames, bitrange):
+            print('[!] Payload size too large for cover .wav file, please use something smaller')
+            return 1
+        print('[*] Encoding...')
         frames = list(frames)
-        frames = bytearray(frames)
+        frames = bytearray(frames)              # convert frames into bytearrays to work with
 
 
         # apply payload padding
@@ -109,8 +103,8 @@ class AudioCoder:
         bitmask = 0
         for i in range(0, bitrange):
             bitmask += 1 << i
-        bitmask = bitmask.to_bytes(1, byteorder=sys.byteorder)
-        bitmask = bitmask[0]
+        bitmask = bitmask.to_bytes(1, byteorder=sys.byteorder)      # convert bitmask integer into bytearray
+        bitmask = bitmask[0]            # get first index of bytearray, as there is no use for lists
 
         # embed payload into frames, payload slices determined by bitrange specified
         for i, bits in enumerate(bin_payload):
@@ -123,11 +117,12 @@ class AudioCoder:
         modded_frames = bytes(frames)
         # write to a wav file on specified destination
         with wave.open(dest, 'wb') as newfile:
-            newfile.setparams(song.getparams())
-            newfile.writeframes(modded_frames)
+            newfile.setparams(song.getparams())     # ensure that song properties are maintained
+            newfile.writeframes(modded_frames)      # write the embedded audio file
             newfile.close()
         song.close()
         print('[*] Successfully encoded and exported to:', dest)
+        return 0
 
     def decode_audio(self, source, dest, bitrange, decodeformat='file'):
         print('[*] Attempting to decode:', source, 'using', bitrange, 'bits.')
@@ -149,31 +144,32 @@ class AudioCoder:
             return
         # Read frames from specified file
         print('[*] Decoding...')
-        song = wave.open(source, 'rb')
-        frames = song.readframes(song.getnframes())
-        frames = bytearray(frames)
+        song = wave.open(source, 'rb')              # open audio file
+        frames = song.readframes(song.getnframes()) # read frames from audio file
+        frames = bytearray(frames)                  # convert frames into byte arrays for manipulation
         decoded_bin = ''
         decoded_string = ''
         for byte in frames:
-            decoded_bin += self.to_bin(byte)[-bitrange:]
+            decoded_bin += self.to_bin(byte)[-bitrange:]        # extract out bytearray into binary strings
 
         if decodeformat == 'file':
-            # slice out the front 4 bits first
+            # slice out the front 4 bits first to identify format
             decoded_string = decoded_bin[:4]
-            decoded_bin = decoded_bin[4:]
-            decoded_bin = [decoded_bin[index: index + 8] for index in range(0, len(decoded_bin), 8)]
+            decoded_bin = decoded_bin[4:]           # extract data starting from 4th bit, as 1-4 is for identifier
+            decoded_bin = [decoded_bin[index: index + 8] for index in range(0, len(decoded_bin), 8)]    # format as byte representation
             for byte in decoded_bin:
-                val = int(byte, 2)
-                current_char = format(val, 'c')
-                if prevprev_char == 'A' and prev_char == '5' and current_char == '=':
-                    decoded_string = decoded_string[:-16]
+                val = int(byte, 2)                  # convert byte to int
+                current_char = format(val, 'c')     # convert int to ascii characters
+                if prevprev_char == 'A' and prev_char == '5' and current_char == '=':   # identify stop code A5=
+                    decoded_string = decoded_string[:-16]       # trim off stop code
                     break
-                prevprev_char = prev_char
-                prev_char = current_char
+                prevprev_char = prev_char       # update previous char for stop code identification
+                prev_char = current_char        # update previous char for stop code identification
                 decoded_string += byte
-            extension = filestream.generate_from_stream(decoded_string, dest)
+            extension = filestream.generate_from_stream(decoded_string, dest)   # generate file from
             return extension
         else:
+            # Decoding plaintext string in audio file, no need for first 4 bit file identifier
             decoded_bin = [decoded_bin[index: index + 8] for index in range(0, len(decoded_bin), 8)]
             for byte in decoded_bin:
                 val = int(byte, 2)

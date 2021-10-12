@@ -104,7 +104,7 @@ def generate_from_stream(data, dest):
     extension = format_identifier(identifier)
     if extension != dest[-(len(extension)):]:
         print(
-            '[!] destination file format and decoded format mismatch, correcting extension...')
+            '[*] destination file format and decoded format mismatch, correcting extension...')
         dest += extension   # apply error correction
 
     # slice out format identifier to get actual file stream
