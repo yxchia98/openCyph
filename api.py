@@ -13,8 +13,7 @@ from video import VideoCoder
 app = Flask(__name__)
 CORS(app)
 
-# API_ENDPOINT = 'http://localhost:9999'
-API_ENDPOINT = 'https://stego-api.bongzy.me'
+API_ENDPOINT = 'http://localhost:9999'
 
 
 @app.get('/getImage')
@@ -183,6 +182,7 @@ def decodeFile():
                 audiodecoder = AudioCoder()
                 fileType = audiodecoder.decode_audio(f"./encoded_assets/{secure_filename(encodedFile.filename)}",
                                                      f"./results/decoded_assets/output{decodeOptionsObject['id']}", int(decodeOptionsObject['coverNumBits']), 'file')
+
             else:
                 raise Exception("NOT WAV FILE")
         except Exception as e:

@@ -16,8 +16,7 @@ import DecodeContainer from "./components/DecodeContainer";
 import { FlagSpinner, ClassicSpinner } from "react-spinners-kit";
 import HugeContainer from "./components/HugeContainer";
 
-// const ENDPOINT_URL = "http://localhost:9999";
-const ENDPOINT_URL = "https://stego-api.bongzy.me";
+const ENDPOINT_URL = "http://localhost:9999";
 
 const LargeButton = styled.div`
   display: flex;

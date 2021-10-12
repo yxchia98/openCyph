@@ -79,7 +79,7 @@ const PayloadContainer = (props) => {
             props.setOptionsObject({
               ...props.optionObject,
               payloadType: e.target.name,
-              coverType: "mp4",
+              coverType: "image",
             });
           } else {
             props.setOptionsObject({
