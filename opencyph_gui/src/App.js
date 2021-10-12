@@ -13,10 +13,11 @@ import { useState, useReducer, useRef, useEffect } from "react";
 import PayloadContainer from "./components/PayloadContainer";
 import CoverContainer from "./components/CoverContainer";
 import DecodeContainer from "./components/DecodeContainer";
-import { FireworkSpinner } from "react-spinners-kit";
+import { FlagSpinner, ClassicSpinner } from "react-spinners-kit";
 import HugeContainer from "./components/HugeContainer";
 
-const ENDPOINT_URL = "http://localhost:5000";
+// const ENDPOINT_URL = "http://localhost:9999";
+const ENDPOINT_URL = "https://stego-api.bongzy.me";
 
 const LargeButton = styled.div`
   display: flex;
@@ -78,13 +79,20 @@ export default function App() {
 }
 
 function Home() {
-  return <h2>Home</h2>;
+  return (
+    <>
+      <h2>Welcome to LOCOL Steganography!</h2>
+      <span>
+        Kindly select <code>Encode</code> or <code>Decode</code> to get started.
+      </span>
+    </>
+  );
 }
 
 function Encode() {
   const [optionObject, setOptionsObject] = useState({
     payloadType: "plaintext",
-    coverType: "mp4",
+    coverType: "image",
     coverNumBits: "2",
     id: "0",
   });
@@ -143,10 +151,6 @@ function Encode() {
     }
   }, [coverData]);
 
-  function handleDownload(sourceUrl) {
-    window.location.href = sourceUrl;
-  }
-
   function handleSubmit() {
     setIsUploading(true);
     setResultsURL(null);
@@ -154,13 +158,17 @@ function Encode() {
     const formData = new FormData();
 
     if (optionObject.coverType !== "mp4") {
-      formData.append("payloadFile", payloadData.fileList[0]);
+      if (optionObject.payloadType !== "file") {
+      } else {
+        formData.append("payloadFile", payloadData.fileList[0]);
+      }
       formData.append("coverFile", coverData.fileList[0]);
       formData.append(
         "optionObject",
         JSON.stringify({
           ...optionObject,
           id: Math.floor(Math.random() * 10000),
+          payloadText: textData,
         })
       );
     } else {
@@ -253,33 +261,35 @@ function Encode() {
               width="100%"
               style={{ objectFit: "contain" }}
             ></img>
-            <Button
-              handleClick={() => {
-                handleDownload(resultsURL);
-              }}
-            >
-              <Download />
-              <span style={{ marginLeft: "8px" }}>Download</span>
-            </Button>
+            <a href={resultsURL} target="_blank" download>
+              <Button handleClick={() => console.log("download started")}>
+                <Download />
+                <span style={{ marginLeft: "8px" }}>Download</span>
+              </Button>
+            </a>
           </HugeContainer>
         </div>
       )}
-
+      <div
+        style={{ display: "flex", justifyContent: "center", margin: "50px" }}
+      >
+        <FlagSpinner loading={isUploading} size={50} color="#0071e3" />
+      </div>
       <div style={{ margin: "20px 40px" }}>
         {JSON.stringify(optionObject)}
 
         <Button handleClick={handleSubmit} float>
           {isUploading ? (
-            <FireworkSpinner
+            <ClassicSpinner
               loading={isUploading}
               size={20}
               color="#000"
-              style={{ marginRight: "8px" }}
+              style={{ marginRight: "20px" }}
             />
           ) : (
             <Confetti></Confetti>
           )}
-          <span style={{ marginLeft: "8px" }}>Encode</span>
+          <span style={{ marginLeft: "12px" }}>Encode</span>
         </Button>
       </div>
     </div>
@@ -328,10 +338,6 @@ function Decode() {
       reader.readAsDataURL(file);
     }
   }, [encodedData]);
-
-  function handleDownload(sourceUrl) {
-    window.location.href = sourceUrl;
-  }
 
   function handleSubmit() {
     setIsUploading(true);
@@ -385,6 +391,11 @@ function Decode() {
           imgData={encodedPreviewUrl}
         ></DecodeContainer>
       </div>
+      <div
+        style={{ display: "flex", justifyContent: "center", margin: "50px" }}
+      >
+        <FlagSpinner loading={isUploading} size={50} color="#0071e3" />
+      </div>
       {errorState && (
         <div
           style={{
@@ -416,14 +427,12 @@ function Decode() {
               width="100%"
               style={{ objectFit: "contain" }}
             ></img>
-            <Button
-              handleClick={() => {
-                handleDownload(resultsURL);
-              }}
-            >
-              <Download />
-              <span style={{ marginLeft: "8px" }}>Download</span>
-            </Button>
+            <a href={resultsURL} target="_blank" download>
+              <Button handleClick={() => console.log("download started")}>
+                <Download />
+                <span style={{ marginLeft: "8px" }}>Download</span>
+              </Button>
+            </a>
           </HugeContainer>
         </div>
       )}
@@ -432,16 +441,16 @@ function Decode() {
 
         <Button handleClick={handleSubmit} float>
           {isUploading ? (
-            <FireworkSpinner
+            <ClassicSpinner
               loading={isUploading}
               size={20}
               color="#000"
-              style={{ marginRight: "8px" }}
+              style={{ marginRight: "20px" }}
             />
           ) : (
             <Confetti></Confetti>
           )}
-          <span style={{ marginLeft: "8px" }}>Decode</span>
+          <span style={{ marginLeft: "12px" }}>Decode</span>
         </Button>
       </div>
     </div>
