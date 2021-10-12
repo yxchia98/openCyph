@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  NavLink,
+} from "react-router-dom";
 import "./App.css";
 import styled from "styled-components";
 import Button from "./components/Button";
@@ -11,8 +16,28 @@ import DecodeContainer from "./components/DecodeContainer";
 import { FireworkSpinner } from "react-spinners-kit";
 import HugeContainer from "./components/HugeContainer";
 
-const ENDPOINT_URL = "http://localhost:9999";
+const ENDPOINT_URL = "http://localhost:5000";
 
+const LargeButton = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  .current {
+    background-color: #0071e3 !important;
+    color: #fff !important;
+  }
+`;
+const linkStyle = {
+  margin: "0",
+  textDecoration: "none",
+  color: "#000",
+  borderRadius: "8px",
+  padding: "14px 24px",
+  fontSize: "22px",
+  fontWeight: "bold",
+  margin: "0 30px",
+  backgroundColor: "#eee",
+};
 export default function App() {
   return (
     <Router>
@@ -20,29 +45,30 @@ export default function App() {
 
       <div>
         <nav>
-          <ul>
-            <li>
-              <Link to='/'>Home</Link>
-            </li>
-            <li>
-              <Link to='/encode'>Encode</Link>
-            </li>
-            <li>
-              <Link to='/decode'>Decode</Link>
-            </li>
-          </ul>
+          {/* <li>
+              <Link to="/">Home</Link>
+            </li> */}
+          <LargeButton>
+            <NavLink to="/encode" style={linkStyle} activeClassName="current">
+              Encode
+            </NavLink>
+
+            <NavLink to="/decode" style={linkStyle} activeClassName="current">
+              Decode
+            </NavLink>
+          </LargeButton>
         </nav>
 
         {/* A <Switch> looks through its children <Route>s and
             renders the first one that matches the current URL. */}
         <Switch>
-          <Route path='/encode'>
+          <Route path="/encode">
             <Encode />
           </Route>
-          <Route path='/decode'>
+          <Route path="/decode">
             <Decode />
           </Route>
-          <Route path='/'>
+          <Route path="/">
             <Home />
           </Route>
         </Switch>
@@ -130,10 +156,23 @@ function Encode() {
     if (optionObject.coverType !== "mp4") {
       formData.append("payloadFile", payloadData.fileList[0]);
       formData.append("coverFile", coverData.fileList[0]);
-      formData.append("optionObject", JSON.stringify({ ...optionObject, id: Math.floor(Math.random() * 10000) }));
+      formData.append(
+        "optionObject",
+        JSON.stringify({
+          ...optionObject,
+          id: Math.floor(Math.random() * 10000),
+        })
+      );
     } else {
       formData.append("coverFile", coverData.fileList[0]);
-      formData.append("optionObject", JSON.stringify({ ...optionObject, id: Math.floor(Math.random() * 10000), payloadText: textData }));
+      formData.append(
+        "optionObject",
+        JSON.stringify({
+          ...optionObject,
+          id: Math.floor(Math.random() * 10000),
+          payloadText: textData,
+        })
+      );
     }
 
     fetch(`${ENDPOINT_URL}/uploadFile`, {
@@ -157,7 +196,7 @@ function Encode() {
   }
 
   return (
-    <div className='App'>
+    <div className="App">
       <div
         style={{
           display: "flex",
@@ -207,8 +246,13 @@ function Encode() {
             flexFlow: "wrap",
           }}
         >
-          <HugeContainer type='Result'>
-            <img src={resultsURL} height='300px' width='100%' style={{ objectFit: "contain" }}></img>
+          <HugeContainer type="Result">
+            <img
+              src={resultsURL}
+              height="300px"
+              width="100%"
+              style={{ objectFit: "contain" }}
+            ></img>
             <Button
               handleClick={() => {
                 handleDownload(resultsURL);
@@ -225,7 +269,16 @@ function Encode() {
         {JSON.stringify(optionObject)}
 
         <Button handleClick={handleSubmit} float>
-          {isUploading ? <FireworkSpinner loading={isUploading} size={20} color='#000' style={{ marginRight: "8px" }} /> : <Confetti></Confetti>}
+          {isUploading ? (
+            <FireworkSpinner
+              loading={isUploading}
+              size={20}
+              color="#000"
+              style={{ marginRight: "8px" }}
+            />
+          ) : (
+            <Confetti></Confetti>
+          )}
           <span style={{ marginLeft: "8px" }}>Encode</span>
         </Button>
       </div>
@@ -286,7 +339,13 @@ function Decode() {
     setErrorState(null);
     const formData = new FormData();
     formData.append("encodedFile", encodedData.fileList[0]);
-    formData.append("decodeOptionsObject", JSON.stringify({ ...decodeOptionsObject, id: Math.floor(Math.random() * 10000) }));
+    formData.append(
+      "decodeOptionsObject",
+      JSON.stringify({
+        ...decodeOptionsObject,
+        id: Math.floor(Math.random() * 10000),
+      })
+    );
 
     fetch(`${ENDPOINT_URL}/decodeFile`, {
       method: "POST",
@@ -309,7 +368,7 @@ function Decode() {
   }
 
   return (
-    <div className='App'>
+    <div className="App">
       <div
         style={{
           display: "flex",
@@ -350,8 +409,13 @@ function Decode() {
             flexFlow: "wrap",
           }}
         >
-          <HugeContainer type='Result'>
-            <img src={resultsURL} height='300px' width='100%' style={{ objectFit: "contain" }}></img>
+          <HugeContainer type="Result">
+            <img
+              src={resultsURL}
+              height="300px"
+              width="100%"
+              style={{ objectFit: "contain" }}
+            ></img>
             <Button
               handleClick={() => {
                 handleDownload(resultsURL);
@@ -367,7 +431,16 @@ function Decode() {
         {JSON.stringify(decodeOptionsObject)}
 
         <Button handleClick={handleSubmit} float>
-          {isUploading ? <FireworkSpinner loading={isUploading} size={20} color='#000' style={{ marginRight: "8px" }} /> : <Confetti></Confetti>}
+          {isUploading ? (
+            <FireworkSpinner
+              loading={isUploading}
+              size={20}
+              color="#000"
+              style={{ marginRight: "8px" }}
+            />
+          ) : (
+            <Confetti></Confetti>
+          )}
           <span style={{ marginLeft: "8px" }}>Decode</span>
         </Button>
       </div>
